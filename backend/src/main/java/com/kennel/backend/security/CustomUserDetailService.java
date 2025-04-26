@@ -1,5 +1,6 @@
 package com.kennel.backend.security;
 
+import com.kennel.backend.entity.Role;
 import com.kennel.backend.service.UserEntityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,10 +24,15 @@ public class CustomUserDetailService implements UserDetailsService {
                 .userId(user.getId())
                 .email(user.getEmail())
                 .authorities(
-                        Arrays.stream(user.getRole().split(","))
-                                .map(String::trim)
+//                        Arrays.stream(user.getRole().split(","))
+//                                .map(String::trim)
+//                                .map(SimpleGrantedAuthority::new)
+//                                .collect(Collectors.toList())
+                        user.getRoles().stream()
+                                .map(Role::getRoleName)
+                                .map(Enum::toString)
                                 .map(SimpleGrantedAuthority::new)
-                                .collect(Collectors.toList())
+                               .toList()
                 )
                 .password(user.getPassword())
                 .build();

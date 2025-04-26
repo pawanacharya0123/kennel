@@ -4,6 +4,7 @@ import com.kennel.backend.entity.enums.ReactionType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
 
@@ -19,9 +20,6 @@ public class Reaction {
     @Enumerated(EnumType.STRING)
     private ReactionType type;
 
-    @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt;
 
     @ManyToOne
     @JoinColumn(name = "created_by", nullable = false)
@@ -42,4 +40,13 @@ public class Reaction {
             throw new IllegalStateException("Reaction must be associated with exactly one Post OR one Comment, but not both or none.");
         }
     }
+
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(updatable = false)
+    private Date createdAt;
+
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date updatedAt;
 }

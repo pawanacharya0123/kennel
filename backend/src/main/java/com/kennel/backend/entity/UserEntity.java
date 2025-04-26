@@ -1,27 +1,51 @@
 package com.kennel.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.kennel.backend.entity.enums.Role;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
+@Setter
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Email
+    @NotNull
+    @Size(max = 255)
     private String email;
+
     @JsonIgnore
+    @NotNull
+    @Size(min = 8)
     private String password;
-    private String role;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "roles_users",
+            joinColumns = @JoinColumn(name= "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
+
+//    private String role;
 //    private List<String> role;
-//    private Role role
     @Nullable
     private String extraInfo;
 
@@ -42,7 +66,7 @@ public class UserEntity {
     private List<Reaction> reactions;
 
     @OneToMany(mappedBy = "owner")
-    private List<Appointment> appointmentsAsDogParent;
+    private List<Appointment> appointmentsAsOwner;
 
     @OneToMany(mappedBy = "doctor")
     private List<VetVisit> vetVisitsAsDoctor;
@@ -52,4 +76,15 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "doctor")
     private List<Vaccine> vaccinatedAsDoctor;
+
+    @CreationTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(updatable = false)
+    private Date createdAt;
+
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date updatedAt;
+
+
 }

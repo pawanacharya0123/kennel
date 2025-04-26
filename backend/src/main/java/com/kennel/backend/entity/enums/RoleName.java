@@ -1,8 +1,9 @@
 package com.kennel.backend.entity.enums;
 
-public enum Role {
+public enum RoleName {
     DOG_OWNER,
     KENNEL_OWNER,
-    CLINIC_VET,
-    DOCTOR
+    CLINIC_MANAGER,
+    DOCTOR,
+    ADMIN
 }

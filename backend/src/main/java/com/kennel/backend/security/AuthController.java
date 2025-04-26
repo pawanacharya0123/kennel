@@ -4,10 +4,13 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.kennel.backend.entity.Role;
 import com.kennel.backend.entity.UserEntity;
+import com.kennel.backend.entity.enums.RoleName;
 import com.kennel.backend.security.dtos.LoginRequest;
 import com.kennel.backend.security.dtos.LoginResponse;
 import com.kennel.backend.security.dtos.SignupRequest;
+import com.kennel.backend.service.RoleService;
 import com.kennel.backend.service.UserEntityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,10 +22,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,6 +35,7 @@ public class AuthController {
     private final JwtProperties jwtProperties;
     private final JwtIssuer jwtIssuer;
     private final JwtDecoder jwtDecoder;
+    private final RoleService roleService;
 
     @PostMapping("/login")
     public LoginResponse login(@RequestBody @Validated LoginRequest request){
@@ -45,7 +47,13 @@ public class AuthController {
         UserEntity userEntity = new UserEntity();
         userEntity.setEmail(request.getEmail());
         userEntity.setPassword(passwordEncoder.encode(request.getPassword()));
-        userEntity.setRole(request.getRole());
+//        userEntity.setRoles(request.getRole());
+        Role role= roleService
+                .findRoleByName(RoleName.DOG_OWNER)
+                .orElseGet(()-> roleService.saveRole(
+                        Role.builder().roleName(RoleName.DOG_OWNER).build())
+                );
+        userEntity.setRoles(Set.of(role));
 
         userEntityService.registerUser(userEntity);
         return new ResponseEntity<>("User registered successfully!", HttpStatus.CREATED);

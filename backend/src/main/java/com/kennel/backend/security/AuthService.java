@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -36,7 +37,7 @@ public class AuthService {
         var principal= (UserPrincipal)authentication.getPrincipal();
 
         List<String> roles = principal.getAuthorities().stream()
-                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
         var accessToken = jwtIssuer.issuer(principal.getUserId(), principal.getEmail(), roles);
@@ -58,12 +59,19 @@ public class AuthService {
                 .getUserEntityByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
 
-        List<String> roles = Arrays.stream(userEntity.getRole().split(","))
-                    .map(String::trim)
-                    .map(SimpleGrantedAuthority::new)
-                    .map(grantedAuthority -> grantedAuthority.getAuthority())
-                    .toList();
+//        List<String> roles = Arrays.stream(userEntity.getRole().split(","))
+//                    .map(String::trim)
+//                    .map(SimpleGrantedAuthority::new)
+//                    .map(grantedAuthority -> grantedAuthority.getAuthority())
+//                    .toList();
 
+        List<String> roles= userEntity.getRoles()
+                .stream()
+                .map(role-> role.getRoleName())
+                .map(Enum::toString)
+                .map(SimpleGrantedAuthority::new)
+                .map(SimpleGrantedAuthority::getAuthority)
+                .toList();
         return jwtIssuer.issuer(userId, email, roles);
     }
 }
