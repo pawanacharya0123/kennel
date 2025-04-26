@@ -1,0 +1,46 @@
+services:
+  mysql:
+    image: mysql:8.1
+    container_name: mysql
+    environment:
+      MYSQL_DATABASE: kennel_db
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - "3316:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - springboot-mysql
+
+  backend:
+    build:
+      context: ./backend
+    container_name: backend
+    ports:
+      - "8080:8080"
+    environment:
+      # SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/kennel_db
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/kennel_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: password
+    depends_on:
+      - mysql
+    networks:
+      - springboot-mysql
+
+  frontend:
+    build:
+      context: ./frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+volumes:
+  mysql_data:
+
+networks:
+  springboot-mysql:
+    driver: bridge
