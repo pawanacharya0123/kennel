@@ -1,0 +1,20 @@
+package com.kennel.backend.service;
+
+import com.kennel.backend.dto.kennel.request.KennelCreateRequestDto;
+import com.kennel.backend.dto.kennel.request.KennelRequestDto;
+import com.kennel.backend.dto.kennel.request.KennelUpdateRequestDto;
+import com.kennel.backend.dto.kennel.response.KennelResponseDto;
+import com.kennel.backend.entity.Kennel;
+import org.springframework.http.ResponseEntity;
+
+import java.util.List;
+
+public interface KennelService {
+    KennelResponseDto createKennel(KennelCreateRequestDto kennelCreateRequestDto, Long ownerId);
+    KennelResponseDto updateKennel(String slug, KennelUpdateRequestDto kennelUpdateRequestDto);
+    KennelResponseDto getKennelById(Long kennelId);
+    List<KennelResponseDto> getAllKennels();
+    List<KennelResponseDto> getKennelsByOwner(Long ownerId);
+    void deleteKennel(String slug);
+    KennelResponseDto getKennelBySlug(String slug);
+}

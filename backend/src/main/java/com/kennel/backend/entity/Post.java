@@ -12,6 +12,8 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @Builder(toBuilder = true)
 public class Post {
     @Id
@@ -39,6 +41,9 @@ public class Post {
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt;
+
+    @Column(unique = true)
+    private String slug;
 
 //    imageUrl
 }

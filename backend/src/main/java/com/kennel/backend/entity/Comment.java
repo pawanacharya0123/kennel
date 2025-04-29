@@ -41,4 +41,6 @@ public class Comment {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt;
 
+    @Column(unique = true)
+    private String slug;
 }

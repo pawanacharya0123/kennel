@@ -52,8 +52,7 @@ public class UserEntity {
     @OneToMany(mappedBy = "owner")
     private List<Dog> dogs;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "manager_id", nullable = true)
+    @OneToOne(mappedBy = "manager", fetch = FetchType.LAZY)
     private Clinic clinic;
 
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)

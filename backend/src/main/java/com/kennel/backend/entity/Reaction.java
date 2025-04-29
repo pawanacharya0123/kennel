@@ -20,7 +20,6 @@ public class Reaction {
     @Enumerated(EnumType.STRING)
     private ReactionType type;
 
-
     @ManyToOne
     @JoinColumn(name = "created_by", nullable = false)
     private UserEntity createdBy;
@@ -32,6 +31,9 @@ public class Reaction {
     @ManyToOne
     @JoinColumn(name = "comment_id")
     private Comment comment;
+
+    @Column(unique = true)
+    private String slug;
 
     @PrePersist
     @PreUpdate

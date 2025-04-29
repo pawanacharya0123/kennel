@@ -12,7 +12,14 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Data
+@Builder(toBuilder = true)
+@Table(
+    name = "kennels",
+    uniqueConstraints = {
+            @UniqueConstraint(columnNames = {"name", "location"})
+    }
+)
 public class Kennel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,4 +49,7 @@ public class Kennel {
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt;
+
+    @Column(unique = true)
+    private String slug;
 }

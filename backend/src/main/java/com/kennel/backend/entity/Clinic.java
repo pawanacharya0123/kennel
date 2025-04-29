@@ -45,4 +45,7 @@ public class Clinic {
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt;
+
+    @Column(unique = true)
+    private String slug;
 }

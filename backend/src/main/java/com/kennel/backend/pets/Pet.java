@@ -32,19 +32,5 @@ public class Pet {
                 '}';
     }
 
-    public Long getId() {
-        return id;
-    }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public int getAge() {
-        return age;
-    }
 }

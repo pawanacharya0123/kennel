@@ -23,6 +23,9 @@ public class Vaccine {
 
     private String description;
 
+    @Column(unique = true)
+    private String slug;
+
     @ManyToOne
     @JoinColumn(name = "dog_id", nullable = false)
     private Dog dog;

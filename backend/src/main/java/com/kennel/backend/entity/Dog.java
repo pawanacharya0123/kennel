@@ -13,7 +13,14 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Data
+@Builder(toBuilder = true)
+@Table(
+    name = "dogs",
+    uniqueConstraints = {
+            @UniqueConstraint(columnNames = {"name", "dog_owner_id"})
+    }
+)
 public class Dog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,8 +38,13 @@ public class Dog {
 
     @Nullable
     private String description;
+
+    @NotNull
     private Boolean isForSale= false;
-    private float price;
+    private Float price;
+
+    @Column(unique = true)
+    private String slug;
 
     @ManyToOne
     @JoinColumn(name = "dog_owner_id", nullable = false)
@@ -59,4 +71,14 @@ public class Dog {
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt;
+
+    @PrePersist
+    @PreUpdate
+    private void validateForSaleAndPrice() {
+        if (Boolean.TRUE.equals(isForSale) && (price == null || price < 0)) {
+            throw new IllegalStateException("Price must be set if dog is for sale.");
+        }
+    }
+
+
 }

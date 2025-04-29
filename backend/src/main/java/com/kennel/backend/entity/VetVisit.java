@@ -25,6 +25,9 @@ public class VetVisit {
     @Nullable
     private String prescription;
 
+    @Column(unique = true)
+    private String slug;
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
     private Date visitDate;

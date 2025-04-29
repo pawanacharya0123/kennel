@@ -45,13 +45,16 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody @Validated SignupRequest request){
         UserEntity userEntity = new UserEntity();
+
         userEntity.setEmail(request.getEmail());
         userEntity.setPassword(passwordEncoder.encode(request.getPassword()));
-//        userEntity.setRoles(request.getRole());
+
+        RoleName roleName= RoleName.ROLE_ADMIN;
+
         Role role= roleService
-                .findRoleByName(RoleName.DOG_OWNER)
+                .findRoleByName(roleName)
                 .orElseGet(()-> roleService.saveRole(
-                        Role.builder().roleName(RoleName.DOG_OWNER).build())
+                        Role.builder().roleName(roleName).build())
                 );
         userEntity.setRoles(Set.of(role));
 
