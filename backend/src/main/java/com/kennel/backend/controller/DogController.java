@@ -7,19 +7,20 @@ import com.kennel.backend.entity.Dog;
 import com.kennel.backend.service.DogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/dog")
+@RequestMapping("/dogs")
 @RequiredArgsConstructor
 public class DogController {
     private DogService dogService;
 
-    @PostMapping("/{ownerId}")
-    public ResponseEntity<DogResponseDTO>  createDog(@RequestBody DogCreateRequestDTO dogCreateRequestDTO, @PathVariable Long ownerId){
-        return ResponseEntity.ok(dogService.createDog(dogCreateRequestDTO, ownerId));
+    @PostMapping
+    public ResponseEntity<DogResponseDTO>  createDog(@RequestBody DogCreateRequestDTO dogCreateRequestDTO){
+        return ResponseEntity.ok(dogService.createDog(dogCreateRequestDTO));
     }
 
     @GetMapping("/{id}")
@@ -42,16 +43,19 @@ public class DogController {
         return ResponseEntity.ok(dogService.getDogsByKennel(kennelSlug));
     }
 
+    @PreAuthorize("@dogSecurity.isOwner(#slug, authentication.name)")
     @PatchMapping("/{slug}/for-sale")
     public ResponseEntity<DogResponseDTO> setDogForSale(@PathVariable String slug, @RequestParam Float price){
         return ResponseEntity.ok(dogService.setDogForSale(slug, price));
     }
 
+    @PreAuthorize("@dogSecurity.isOwner(#slug, authentication.name)")
     @PutMapping("/{slug}")
     public ResponseEntity<DogResponseDTO> updateDog(@PathVariable String slug, @RequestBody DogUpdateRequestDTO dogUpdateRequestDTO){
         return ResponseEntity.ok(dogService.updateDog(slug, dogUpdateRequestDTO));
     }
 
+    @PreAuthorize("@dogSecurity.isOwner(#slug, authentication.name)")
     @DeleteMapping("/{slug}")
     public ResponseEntity<Void> deleteDog(@PathVariable String slug){
         dogService.deleteDog(slug);

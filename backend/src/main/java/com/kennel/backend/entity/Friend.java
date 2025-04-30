@@ -1,38 +1,38 @@
 package com.kennel.backend.entity;
 
+import com.kennel.backend.entity.enums.FriendStatus;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Email;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
-import java.util.List;
 
-@Entity
-@NoArgsConstructor
+@Email
 @AllArgsConstructor
+@NoArgsConstructor
+@Builder(toBuilder = true)
 @Getter
 @Setter
-@Builder(toBuilder = true)
-public class Comment {
+//@Table(uniqueConstraints = {
+//        @UniqueConstraint(columnNames = {"sender_id", "receiver_id"})
+//})
+public class Friend {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    private String content;
+    @ManyToOne
+    @JoinColumn(name = "sender_id")
+    private UserEntity sender;
 
     @ManyToOne
-    @JoinColumn(name = "post_id", nullable = false)
-    private Post post;
+    @JoinColumn(name = "receiver_id")
+    private UserEntity receiver;
 
-    @ManyToOne
-    @JoinColumn(name = "created_by", nullable = false)
-    private UserEntity createdBy;
-
-    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Reaction> reactions;
+    @Enumerated(EnumType.STRING)
+    private FriendStatus status= FriendStatus.REQUESTED;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -43,6 +43,4 @@ public class Comment {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt;
 
-    @Column(unique = true)
-    private String slug;
 }

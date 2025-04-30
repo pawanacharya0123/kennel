@@ -11,4 +11,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException exception){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
+
+    @ExceptionHandler(ForbiddenActionException.class)
+    public ResponseEntity<Object> handleForbidden(ForbiddenActionException exception) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    public ResponseEntity<Object> handleUnauthorizedException(UnauthorizedAccessException exception) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());
+    }
 }

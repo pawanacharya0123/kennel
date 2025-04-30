@@ -4,14 +4,18 @@ import com.kennel.backend.dto.dog.DogDtoMapper;
 import com.kennel.backend.dto.dog.request.DogCreateRequestDTO;
 import com.kennel.backend.dto.dog.request.DogUpdateRequestDTO;
 import com.kennel.backend.dto.dog.response.DogResponseDTO;
+import com.kennel.backend.entity.Comment;
 import com.kennel.backend.entity.Dog;
+import com.kennel.backend.entity.Kennel;
 import com.kennel.backend.entity.UserEntity;
 import com.kennel.backend.exception.EntityNotFoundException;
+import com.kennel.backend.exception.ForbiddenActionException;
 import com.kennel.backend.repository.DogRepository;
 import com.kennel.backend.repository.UserEntityRepository;
 import com.kennel.backend.service.DogService;
 import com.kennel.backend.utility.SlugGenerator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,9 +29,11 @@ public class DogServiceImpl implements DogService {
     private final DogDtoMapper dogDtoMapper;
 
     @Override
-    public DogResponseDTO createDog(DogCreateRequestDTO dogCreateRequestDTO, Long ownerId) {
-        UserEntity user= userEntityRepository.findById(ownerId)
-                .orElseThrow(()-> new EntityNotFoundException(UserEntity.class, "id", ownerId));
+    public DogResponseDTO createDog(DogCreateRequestDTO dogCreateRequestDTO) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        UserEntity user= userEntityRepository.findByEmail(userEmail)
+                .orElseThrow(()-> new EntityNotFoundException(UserEntity.class, "email", userEmail));
 
         Dog dog= dogDtoMapper.toEntity(dogCreateRequestDTO);
 
@@ -37,7 +43,7 @@ public class DogServiceImpl implements DogService {
         dog.setSlug(finalSlug);
         dog.setOwner(user);
 
-        validateDogNameUnique(dog.getName(), ownerId);
+        validateDogNameUnique(dog.getName(), user.getId());
 
         return dogDtoMapper.toDto(dogRepository.save(dog));
     }
@@ -66,6 +72,8 @@ public class DogServiceImpl implements DogService {
         Dog dog= dogRepository.findBySlug(slug)
                 .orElseThrow(()-> new EntityNotFoundException(Dog.class, "slug", slug));
 
+        checkAccess(dog);
+
         dog.setIsForSale(true);
         dog.setPrice(price);
         Dog updatedDog= dogRepository.save(dog);
@@ -76,6 +84,8 @@ public class DogServiceImpl implements DogService {
     public DogResponseDTO updateDog(String slug, DogUpdateRequestDTO dogUpdateRequestDTO) {
         Dog dog = dogRepository.findBySlug(slug)
                 .orElseThrow(()-> new EntityNotFoundException(Dog.class, "slug", slug));
+
+        checkAccess(dog);
 
         Dog updatedDogRequest= dogDtoMapper.toEntity(dogUpdateRequestDTO);
 
@@ -96,6 +106,8 @@ public class DogServiceImpl implements DogService {
         Dog dog = dogRepository.findBySlug(slug)
                 .orElseThrow(()-> new EntityNotFoundException(Dog.class, "slug", slug));
 
+        checkAccess(dog);
+
         dogRepository.delete(dog);
     }
 
@@ -104,6 +116,13 @@ public class DogServiceImpl implements DogService {
         Dog dog= dogRepository.findBySlug(slug)
                 .orElseThrow(()-> new EntityNotFoundException(Dog.class, "slug", slug));
         return dogDtoMapper.toDto(dog);
+    }
+
+    private void checkAccess(Dog dog){
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        if(!dog.getOwner().getEmail().equals(userEmail)){
+            throw new ForbiddenActionException(Comment.class);
+        }
     }
 
     private void validateDogNameUnique(String name, Long ownerId){

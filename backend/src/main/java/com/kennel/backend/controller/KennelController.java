@@ -8,12 +8,13 @@ import com.kennel.backend.entity.Kennel;
 import com.kennel.backend.service.KennelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/kennel")
+@RequestMapping("/kennels")
 @RequiredArgsConstructor
 public class KennelController {
     private final KennelService kennelService;
@@ -38,17 +39,19 @@ public class KennelController {
         return ResponseEntity.ok(kennelService.getKennelsByOwner(userId));
     }
 
+    @PreAuthorize("@kennelSecurity.isOwner(#slug, authentication.name)")
     @DeleteMapping("/{slug}")
     public ResponseEntity<Void> deleteKennel(@PathVariable String slug){
         kennelService.deleteKennel(slug);
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{ownerId}")
-    public ResponseEntity<KennelResponseDto> createKennel(@RequestBody KennelCreateRequestDto kennelCreateRequestDto, @PathVariable Long ownerId){
-        return ResponseEntity.ok(kennelService.createKennel(kennelCreateRequestDto, ownerId));
+    @PostMapping
+    public ResponseEntity<KennelResponseDto> createKennel(@RequestBody KennelCreateRequestDto kennelCreateRequestDto){
+        return ResponseEntity.ok(kennelService.createKennel(kennelCreateRequestDto));
     }
 
+    @PreAuthorize("@kennelSecurity.isOwner(#slug, authentication.name)")
     @PutMapping("/{slug}")
     public ResponseEntity<KennelResponseDto> updateKennel(@RequestBody KennelUpdateRequestDto kennelUpdateRequestDto, @PathVariable String slug){
         return ResponseEntity.ok(kennelService.updateKennel(slug, kennelUpdateRequestDto));

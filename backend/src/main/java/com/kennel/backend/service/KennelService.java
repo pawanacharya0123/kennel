@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 public interface KennelService {
-    KennelResponseDto createKennel(KennelCreateRequestDto kennelCreateRequestDto, Long ownerId);
+    KennelResponseDto createKennel(KennelCreateRequestDto kennelCreateRequestDto);
     KennelResponseDto updateKennel(String slug, KennelUpdateRequestDto kennelUpdateRequestDto);
     KennelResponseDto getKennelById(Long kennelId);
     List<KennelResponseDto> getAllKennels();

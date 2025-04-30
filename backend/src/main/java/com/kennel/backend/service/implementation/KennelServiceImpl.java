@@ -5,9 +5,12 @@ import com.kennel.backend.dto.kennel.request.KennelCreateRequestDto;
 import com.kennel.backend.dto.kennel.request.KennelRequestDto;
 import com.kennel.backend.dto.kennel.request.KennelUpdateRequestDto;
 import com.kennel.backend.dto.kennel.response.KennelResponseDto;
+import com.kennel.backend.entity.Comment;
 import com.kennel.backend.entity.Kennel;
+import com.kennel.backend.entity.Post;
 import com.kennel.backend.entity.UserEntity;
 import com.kennel.backend.exception.EntityNotFoundException;
+import com.kennel.backend.exception.ForbiddenActionException;
 import com.kennel.backend.repository.KennelRepository;
 import com.kennel.backend.repository.UserEntityRepository;
 import com.kennel.backend.service.KennelService;
@@ -15,6 +18,7 @@ import com.kennel.backend.utility.SlugGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,9 +32,11 @@ public class KennelServiceImpl implements KennelService {
     private final KannelDtoMapper kannelDtoMapper;
 
     @Override
-    public KennelResponseDto createKennel(KennelCreateRequestDto kennelCreateRequestDto, Long ownerId) {
-        UserEntity user =userEntityRepository.findById(ownerId)
-                .orElseThrow(()-> new EntityNotFoundException(UserEntity.class, "id", ownerId));
+    public KennelResponseDto createKennel(KennelCreateRequestDto kennelCreateRequestDto) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        UserEntity user =userEntityRepository.findByEmail(userEmail)
+                .orElseThrow(()-> new EntityNotFoundException(UserEntity.class, "email", userEmail));
 
         Kennel kennel = kannelDtoMapper.toEntity(kennelCreateRequestDto);
 
@@ -49,6 +55,8 @@ public class KennelServiceImpl implements KennelService {
     public KennelResponseDto updateKennel(String slug, KennelUpdateRequestDto kennelUpdateRequestDto) {
         Kennel kennel = kennelRepository.findBySlug(slug)
                 .orElseThrow(() -> new EntityNotFoundException(Kennel.class, "slug", slug));
+
+        checkAccess(kennel);
 
         Kennel updatedKennelRequest = kannelDtoMapper.toEntity(kennelUpdateRequestDto);
 
@@ -84,7 +92,12 @@ public class KennelServiceImpl implements KennelService {
 
     @Override
     public void deleteKennel(String slug) {
-        kennelRepository.deleteBySlug(slug);
+        Kennel kennel = kennelRepository.findBySlug(slug)
+                .orElseThrow(() -> new EntityNotFoundException(Kennel.class, "slug", slug));
+
+        checkAccess(kennel);
+
+        kennelRepository.delete(kennel);
     }
 
     @Override
@@ -92,6 +105,13 @@ public class KennelServiceImpl implements KennelService {
         Kennel kennel = kennelRepository.findBySlug(slug)
                 .orElseThrow(() -> new EntityNotFoundException(Kennel.class, "slug", slug));
         return kannelDtoMapper.toDto(kennel);
+    }
+
+    private void checkAccess(Kennel kennel){
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        if(!kennel.getOwner().getEmail().equals(userEmail)){
+            throw new ForbiddenActionException(Comment.class);
+        }
     }
 
     private void validateDogNameUnique(String name, String location){

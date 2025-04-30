@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 public interface DogService {
-    DogResponseDTO createDog(DogCreateRequestDTO dog, Long ownerId);
+    DogResponseDTO createDog(DogCreateRequestDTO dog);
 
     DogResponseDTO getDogById(Long id);
 

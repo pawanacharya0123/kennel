@@ -11,7 +11,7 @@ public interface PostService {
     PostResponseDto getPostById(Long id);
     PostResponseDto getPostBySlug(String slug);
     void deletePost(String slug);
-    PostResponseDto createPost(PostRequestDto postRequestDto, Long userId);
+    PostResponseDto createPost(PostRequestDto postRequestDto);
     PostResponseDto updatePost(String slug, PostRequestDto postRequestDto);
     List<PostResponseDto> getPostsByUser(Long userId);
 }
