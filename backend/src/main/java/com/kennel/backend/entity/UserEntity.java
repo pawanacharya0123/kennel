@@ -44,8 +44,6 @@ public class UserEntity {
     )
     private Set<Role> roles = new HashSet<>();
 
-//    private String role;
-//    private List<String> role;
     @Nullable
     private String extraInfo;
 
@@ -67,14 +65,20 @@ public class UserEntity {
     @OneToMany(mappedBy = "owner")
     private List<Appointment> appointmentsAsOwner;
 
-    @OneToMany(mappedBy = "doctor")
+    @OneToMany(mappedBy = "owner")
     private List<VetVisit> vetVisitsAsDoctor;
+
+    @OneToMany(mappedBy = "doctor")
+    private List<VetVisit> vetVisitsAsOwner;
 
     @OneToMany(mappedBy = "doctor")
     private List<Appointment> appointmentsAsDoctor;
 
     @OneToMany(mappedBy = "doctor")
-    private List<Vaccine> vaccinatedAsDoctor;
+    private List<VaccineRecord> vaccinatedAsDoctor;
+
+    @ManyToMany(mappedBy = "doctors")
+    private Set<Clinic> clinics= new HashSet<>();
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

@@ -9,11 +9,14 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
+@Setter
 public class VetVisit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,8 +51,12 @@ public class VetVisit {
     @JoinColumn(name = "doctor_id", nullable = false)
     private UserEntity doctor;
 
-    @OneToMany(mappedBy = "vetVisit", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Vaccine> vaccines;
+    @OneToMany(mappedBy = "vetVisit", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<VaccineRecord> vaccines;
+
+    @ManyToOne
+    @JoinColumn(name = "dog_owner_id", nullable = false)
+    private UserEntity owner;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

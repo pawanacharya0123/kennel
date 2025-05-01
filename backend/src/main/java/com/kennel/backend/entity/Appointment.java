@@ -1,6 +1,7 @@
 package com.kennel.backend.entity;
 
 import com.kennel.backend.entity.enums.AppointmentStatus;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -12,6 +13,8 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
+@Setter
 public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,6 +26,9 @@ public class Appointment {
 
     @Enumerated(EnumType.STRING)
     private AppointmentStatus status= AppointmentStatus.BOOKED;
+
+    @Nullable
+    private String note;
 
     @ManyToOne
     @JoinColumn(name = "dog_id", nullable = false)

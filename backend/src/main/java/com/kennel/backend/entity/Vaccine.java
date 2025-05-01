@@ -13,6 +13,8 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
+@Setter
 public class Vaccine {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,26 +27,6 @@ public class Vaccine {
 
     @Column(unique = true)
     private String slug;
-
-    @ManyToOne
-    @JoinColumn(name = "dog_id", nullable = false)
-    private Dog dog;
-
-    @ManyToOne
-    @JoinColumn(name = "vet_visit_id", nullable = false)
-    private VetVisit vetVisit;
-
-    @ManyToOne
-    @JoinColumn(name = "clinic_id", nullable = false)
-    private Clinic clinic;
-
-    @ManyToOne
-    @JoinColumn(name = "doctor_id", nullable = false)
-    private UserEntity doctor;
-
-    @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date vaccinationDate;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

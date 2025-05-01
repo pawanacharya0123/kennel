@@ -7,12 +7,16 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
+@Setter
 public class Clinic {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,7 +39,15 @@ public class Clinic {
     private UserEntity manager;
 
     @OneToMany(mappedBy = "clinic")
-    private List<Vaccine> vaccines;
+    private List<VaccineRecord> vaccines;
+
+    @ManyToMany
+    @JoinTable(
+            name= "clinic_doctors",
+            joinColumns= @JoinColumn(name = "clinic_id"),
+            inverseJoinColumns = @JoinColumn(name = "doctor_id")
+    )
+    private Set<UserEntity> doctors= new HashSet<>();
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

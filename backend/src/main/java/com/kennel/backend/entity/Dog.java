@@ -61,7 +61,7 @@ public class Dog {
     private Kennel kennel;
 
     @OneToMany(mappedBy = "dog", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Vaccine> vaccines;
+    private List<VaccineRecord> vaccines;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

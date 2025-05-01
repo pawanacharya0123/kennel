@@ -16,7 +16,7 @@ public class AuthUtility {
         String authUserEmail = getCurrentUserEmail();
 
         return userEntityRepository.findByEmail(authUserEmail)
-                .orElseThrow(()-> new EntityNotFoundException(UserEntity .class, "email",authUserEmail));
+                .orElseThrow(()-> new EntityNotFoundException(UserEntity .class, "email", authUserEmail));
     }
 
     public String getCurrentUserEmail(){
