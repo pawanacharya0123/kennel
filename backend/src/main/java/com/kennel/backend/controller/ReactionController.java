@@ -23,27 +23,23 @@ import java.util.List;
 public class ReactionController {
     private final ReactionService reactionService;
 
-    @GetMapping("/posts/{postSlug}")
+    @GetMapping("/post/{postSlug}")
     public ResponseEntity<List<Reaction>> getReactionsFromPost(@PathVariable String postSlug){
         return ResponseEntity.ok(reactionService.getReactionsFromPost(postSlug));
     }
 
-    @GetMapping("/comments/{commentSlug}")
+    @GetMapping("/comment/{commentSlug}")
     public ResponseEntity<List<Reaction>> getReactionsFromComment(@PathVariable String commentSlug){
         return ResponseEntity.ok(reactionService.getReactionsFromComment(commentSlug));
     }
 
-//    @PostMapping
-//    public ResponseEntity<Reaction> createReaction(@RequestBody Reaction reaction ){
-//        return ResponseEntity.ok(reactionService.createReaction(reaction));
-//    }
 
-    @PostMapping("/posts/{postSlug}")
+    @PostMapping("/post/{postSlug}")
     public ResponseEntity<ReactionResponseDto> reactToPost(@PathVariable String postSlug, @RequestBody ReactionRequestDto reactionRequestDto){
         return ResponseEntity.ok(reactionService.reactToPost(postSlug, reactionRequestDto));
     }
 
-    @PostMapping("/comments/{commentSlug}")
+    @PostMapping("/comment/{commentSlug}")
     public ResponseEntity<ReactionResponseDto> reactToComment(@PathVariable String commentSlug, @RequestBody ReactionRequestDto reactionRequestDto){
         return ResponseEntity.ok(reactionService.reactToComment(commentSlug, reactionRequestDto));
     }

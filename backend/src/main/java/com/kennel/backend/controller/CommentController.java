@@ -32,7 +32,7 @@ public class CommentController {
     }
 
     @PreAuthorize("@commentSecurity.isOwner(#slug, authentication.name)")
-    @PutMapping("/slug/{slug}")
+    @PutMapping("/{slug}")
     public ResponseEntity<CommentResponseDto> updateComment(
             @RequestBody CommentRequestDto commentRequestDto,
             @PathVariable String slug

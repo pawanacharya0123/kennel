@@ -2,13 +2,18 @@ package com.kennel.backend.dto.kennel;
 
 import com.kennel.backend.dto.kennel.request.KennelRequestDto;
 import com.kennel.backend.dto.kennel.response.KennelResponseDto;
+import com.kennel.backend.dto.userEntity.UserEntityDtoMapper;
 import com.kennel.backend.entity.Kennel;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
-public class KannelDtoMapper {
+@RequiredArgsConstructor
+public class KennelDtoMapper {
+    private final UserEntityDtoMapper userEntityDtoMapper;
+
     public Kennel toEntity(KennelRequestDto kennelRequestDto){
         return Kennel.builder()
                 .name(kennelRequestDto.getName())
@@ -23,6 +28,7 @@ public class KannelDtoMapper {
                 .name(kennel.getName())
                 .location(kennel.getLocation())
                 .establishedAt(kennel.getEstablishedAt())
+                .owner(userEntityDtoMapper.toDto(kennel.getOwner()))
                 .build();
 
     }

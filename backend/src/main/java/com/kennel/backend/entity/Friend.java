@@ -9,7 +9,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
 
-@Email
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)

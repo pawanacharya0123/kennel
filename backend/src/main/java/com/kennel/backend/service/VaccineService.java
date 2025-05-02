@@ -10,4 +10,6 @@ public interface VaccineService {
     List<VaccineResponseDto> getAll();
 
     VaccineResponseDto create(VaccineRequestDto vaccineRequestDto);
+
+    VaccineResponseDto update(String slug, VaccineRequestDto vaccineRequestDto);
 }

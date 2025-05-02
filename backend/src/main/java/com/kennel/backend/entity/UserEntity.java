@@ -36,6 +36,12 @@ public class UserEntity {
     @Size(min = 8)
     private String password;
 
+    public UserEntity(String email, String password){
+        this.email=email;
+        this.password= password;
+    }
+
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "roles_users",
@@ -76,6 +82,9 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "doctor")
     private List<VaccineRecord> vaccinatedAsDoctor;
+
+    @OneToMany(mappedBy = "vaccineCreator")
+    private List<Vaccine> vaccines;
 
     @ManyToMany(mappedBy = "doctors")
     private Set<Clinic> clinics= new HashSet<>();

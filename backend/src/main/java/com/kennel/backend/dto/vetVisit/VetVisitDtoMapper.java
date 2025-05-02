@@ -1,5 +1,9 @@
 package com.kennel.backend.dto.vetVisit;
 
+import com.kennel.backend.dto.appointments.AppointmentDtoMapper;
+import com.kennel.backend.dto.clinic.ClinicDtoMapper;
+import com.kennel.backend.dto.dog.DogDtoMapper;
+import com.kennel.backend.dto.userEntity.UserEntityDtoMapper;
 import com.kennel.backend.dto.vetVisit.request.VetVisitRequestDto;
 import com.kennel.backend.dto.vetVisit.response.VetVisitResponseDto;
 import com.kennel.backend.entity.Appointment;
@@ -15,6 +19,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VetVisitDtoMapper {
     private final AppointmentRepository appointmentRepository;
+    private final UserEntityDtoMapper userEntityDtoMapper;
+    private final DogDtoMapper dogDtoMapper;
+    private final AppointmentDtoMapper appointmentDtoMapper;
+    private final ClinicDtoMapper clinicDtoMapper;
 
     public VetVisitResponseDto toDto(VetVisit vetVisit){
         return VetVisitResponseDto.builder()
@@ -23,11 +31,11 @@ public class VetVisitDtoMapper {
                 .prescription(vetVisit.getPrescription())
                 .slug(vetVisit.getSlug())
                 .visitDate(vetVisit.getVisitDate())
-                .owner(vetVisit.getOwner())
-                .dog(vetVisit.getDog())
-                .appointment(vetVisit.getAppointment())
-                .clinic(vetVisit.getClinic())
-                .doctor(vetVisit.getDoctor())
+                .owner(userEntityDtoMapper.toDto(vetVisit.getOwner()))
+                .dog(dogDtoMapper.toDto(vetVisit.getDog()))
+                .appointment(appointmentDtoMapper.toDto(vetVisit.getAppointment()))
+                .clinic(clinicDtoMapper.toDto(vetVisit.getClinic()))
+                .doctor(userEntityDtoMapper.toDto(vetVisit.getDoctor()))
                 .build();
     }
 

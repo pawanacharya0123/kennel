@@ -1,5 +1,7 @@
 package com.kennel.backend.dto.dog.response;
 
+import com.kennel.backend.dto.kennel.response.KennelResponseDto;
+import com.kennel.backend.dto.userEntity.response.UserDetailsResponseDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,4 +18,6 @@ public class DogResponseDTO {
     private String description;
     private Boolean isForSale;
     private Float price;
+    private UserDetailsResponseDto owner;
+    private KennelResponseDto kennel;
 }

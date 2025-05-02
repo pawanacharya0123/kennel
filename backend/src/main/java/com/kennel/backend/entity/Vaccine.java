@@ -28,6 +28,10 @@ public class Vaccine {
     @Column(unique = true)
     private String slug;
 
+    @ManyToOne
+    @JoinColumn(name = "vaccine_creator_id", nullable = false)
+    private UserEntity vaccineCreator;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(updatable = false)

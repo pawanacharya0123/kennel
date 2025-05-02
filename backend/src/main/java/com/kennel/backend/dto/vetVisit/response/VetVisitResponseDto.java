@@ -1,5 +1,9 @@
 package com.kennel.backend.dto.vetVisit.response;
 
+import com.kennel.backend.dto.appointments.response.AppointmentResponseDto;
+import com.kennel.backend.dto.clinic.response.ClinicResponseDto;
+import com.kennel.backend.dto.dog.response.DogResponseDTO;
+import com.kennel.backend.dto.userEntity.response.UserDetailsResponseDto;
 import com.kennel.backend.entity.*;
 import lombok.Builder;
 
@@ -13,9 +17,9 @@ public class VetVisitResponseDto {
     private String prescription;
     private String slug;
     private Date visitDate;
-    private Dog dog;
-    private Appointment appointment;
-    private Clinic clinic;
-    private UserEntity doctor;
-    private UserEntity owner;
+    private DogResponseDTO dog;
+    private AppointmentResponseDto appointment;
+    private ClinicResponseDto clinic;
+    private UserDetailsResponseDto doctor;
+    private UserDetailsResponseDto owner;
 }

@@ -26,4 +26,10 @@ public class VaccineController {
     public ResponseEntity<VaccineResponseDto> create(@RequestBody VaccineRequestDto vaccineRequestDto){
         return ResponseEntity.ok(vaccineService.create(vaccineRequestDto));
     }
+
+    @PatchMapping("/{slug}")
+    public ResponseEntity<VaccineResponseDto> update(@PathVariable String slug, @RequestBody VaccineRequestDto vaccineRequestDto){
+        return ResponseEntity.ok(vaccineService.update(slug, vaccineRequestDto));
+    }
+
 }

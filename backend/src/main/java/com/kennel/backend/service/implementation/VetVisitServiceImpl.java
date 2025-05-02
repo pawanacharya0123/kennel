@@ -74,7 +74,7 @@ public class VetVisitServiceImpl implements VetVisitService {
     }
 
     @Override
-    public VetVisitResponseDto vaccinate(Long id, String slug) {
+    public VetVisitResponseDto vaccinate(Long id, String vaccineSlug) {
         UserEntity currentAuthUser = authUtility.getCurrentUser();
 
         VetVisit visit = vetVisitRepository.findById(id)
@@ -86,8 +86,8 @@ public class VetVisitServiceImpl implements VetVisitService {
             throw new UnauthorizedAccessException(VetVisit.class, currentAuthUser.getId());
         }
 
-        Vaccine vaccine= vaccineRepository.findBySlug(slug)
-                .orElseThrow(() -> new EntityNotFoundException(Vaccine.class, "slug", slug));
+        Vaccine vaccine= vaccineRepository.findBySlug(vaccineSlug)
+                .orElseThrow(() -> new EntityNotFoundException(Vaccine.class, "slug", vaccineSlug));
 
         VaccineRecord vaccineRecord= VaccineRecord.builder()
                 .vaccine(vaccine)

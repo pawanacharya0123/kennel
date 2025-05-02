@@ -14,6 +14,7 @@ import com.kennel.backend.repository.CommentRepository;
 import com.kennel.backend.repository.PostRepository;
 import com.kennel.backend.repository.ReactionRepository;
 import com.kennel.backend.repository.UserEntityRepository;
+import com.kennel.backend.security.AuthUtility;
 import com.kennel.backend.service.ReactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,6 +30,7 @@ public class ReactionServiceImpl implements ReactionService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final ReactionMapper reactionMapper;
+    private final AuthUtility authUtility;
 
     @Override
     public List<Reaction> getReactionsFromPost(String postSlug) {
@@ -56,13 +58,11 @@ public class ReactionServiceImpl implements ReactionService {
         Post post = postRepository.findBySlug(postSlug)
                 .orElseThrow(() -> new EntityNotFoundException(Post.class, "slug", postSlug));
 
-        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity userEntity = userEntityRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new EntityNotFoundException(UserEntity.class, "email", userEmail));
+        UserEntity currentAuthUser= authUtility.getCurrentUser();
 
         Reaction reaction = reactionMapper.toEntity(reactionRequestDto);
         reaction.setPost(post);
-        reaction.setCreatedBy(userEntity);
+        reaction.setCreatedBy(currentAuthUser);
         return reactionMapper.toDto(reactionRepository.save(reaction));
     }
 
@@ -71,13 +71,11 @@ public class ReactionServiceImpl implements ReactionService {
         Comment comment = commentRepository.findBySlug(commentSlug)
                 .orElseThrow(() -> new EntityNotFoundException(Comment.class, "slug", commentSlug));
 
-        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity userEntity = userEntityRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new EntityNotFoundException(UserEntity.class, "email", userEmail));
+        UserEntity currentAuthUser= authUtility.getCurrentUser();
 
         Reaction reaction = reactionMapper.toEntity(reactionRequestDto);
         reaction.setComment(comment);
-        reaction.setCreatedBy(userEntity);
+        reaction.setCreatedBy(currentAuthUser);
         return reactionMapper.toDto(reactionRepository.save(reaction));
     }
 

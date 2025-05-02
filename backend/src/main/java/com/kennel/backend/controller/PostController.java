@@ -58,8 +58,4 @@ public class PostController {
     public ResponseEntity<PostResponseDto> updatePost(@RequestBody PostRequestDto postRequestDto, @PathVariable String slug){
         return ResponseEntity.ok(postService.updatePost(slug, postRequestDto));
     }
-
-
-
-
 }

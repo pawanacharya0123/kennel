@@ -32,9 +32,9 @@ public class VetVisitController {
         return ResponseEntity.ok(vetVisitService.createVetVisit(vetVisitRequestDto));
     }
 
-    @PatchMapping("/{id}/vaccine")
-    public ResponseEntity<VetVisitResponseDto> vaccinate(@PathVariable Long id, @RequestParam String slug){
-        return ResponseEntity.ok(vetVisitService.vaccinate(id,slug));
+    @PatchMapping("/{vaccineSlug}/vaccine")
+    public ResponseEntity<VetVisitResponseDto> vaccinate(@PathVariable Long id, @RequestParam String vaccineSlug){
+        return ResponseEntity.ok(vetVisitService.vaccinate(id,vaccineSlug));
     }
 
 }

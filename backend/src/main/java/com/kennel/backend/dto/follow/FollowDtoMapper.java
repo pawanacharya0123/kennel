@@ -2,6 +2,7 @@ package com.kennel.backend.dto.follow;
 
 import com.kennel.backend.dto.follow.request.FollowRequestDto;
 import com.kennel.backend.dto.follow.response.FollowResponseDto;
+import com.kennel.backend.dto.userEntity.UserEntityDtoMapper;
 import com.kennel.backend.entity.Follower;
 import com.kennel.backend.entity.UserEntity;
 import com.kennel.backend.exception.EntityNotFoundException;
@@ -16,6 +17,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FollowDtoMapper {
     private final UserEntityRepository userEntityRepository;
+    private final UserEntityDtoMapper userEntityDtoMapper;
+
     public Follower toEntity(FollowRequestDto followRequestDto){
         UserEntity userToFollow= userEntityRepository.findById(followRequestDto.getFollowing())
                 .orElseThrow(()-> new EntityNotFoundException(UserEntity.class, "id", followRequestDto.getFollowing()));
@@ -32,8 +35,8 @@ public class FollowDtoMapper {
 
     public FollowResponseDto toDto(Follower follower){
         return FollowResponseDto.builder()
-                .following(follower.getFollowing())
-                .follower(follower.getFollower())
+                .following(userEntityDtoMapper.toDto(follower.getFollowing()))
+                .follower(userEntityDtoMapper.toDto(follower.getFollower()))
                 .build();
     }
 

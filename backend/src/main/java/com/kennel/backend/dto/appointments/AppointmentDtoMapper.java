@@ -2,6 +2,9 @@ package com.kennel.backend.dto.appointments;
 
 import com.kennel.backend.dto.appointments.request.AppointmentRequestDto;
 import com.kennel.backend.dto.appointments.response.AppointmentResponseDto;
+import com.kennel.backend.dto.clinic.ClinicDtoMapper;
+import com.kennel.backend.dto.dog.DogDtoMapper;
+import com.kennel.backend.dto.userEntity.UserEntityDtoMapper;
 import com.kennel.backend.entity.Appointment;
 import com.kennel.backend.entity.Clinic;
 import com.kennel.backend.entity.Dog;
@@ -23,6 +26,9 @@ public class AppointmentDtoMapper {
     private final ClinicRepository clinicRepository;
     private final UserEntityRepository userEntityRepository;
     private final AuthUtility authUtility;
+    private final UserEntityDtoMapper userEntityDtoMapper;
+    private final DogDtoMapper dogDtoMapper;
+    private final ClinicDtoMapper clinicDtoMapper;
 
     public Appointment toEntity(AppointmentRequestDto appointmentRequestDto){
         Dog dog= dogRepository.findBySlug(appointmentRequestDto.getDog())
@@ -48,10 +54,10 @@ public class AppointmentDtoMapper {
                 .slug(appointment.getSlug())
                 .status(appointment.getStatus())
                 .appointmentTime(appointment.getAppointmentTime())
-                .dog(appointment.getDog())
-                .doctor(appointment.getDoctor())
-                .owner(appointment.getOwner())
-                .clinic(appointment.getClinic())
+                .dog(dogDtoMapper.toDto(appointment.getDog()))
+                .doctor(userEntityDtoMapper.toDto(appointment.getDoctor()))
+                .owner(userEntityDtoMapper.toDto(appointment.getOwner()))
+                .clinic(clinicDtoMapper.toDto(appointment.getClinic()))
                 .note(appointment.getNote())
                 .build();
     }

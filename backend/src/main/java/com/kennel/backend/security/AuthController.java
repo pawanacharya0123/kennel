@@ -38,8 +38,8 @@ public class AuthController {
     private final RoleService roleService;
 
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody @Validated LoginRequest request){
-        return authService.attemptLogin(request.getEmail(), request.getPassword());
+    public ResponseEntity<LoginResponse> login(@RequestBody @Validated LoginRequest request){
+        return ResponseEntity.ok(authService.attemptLogin(request.getEmail(), request.getPassword()));
     }
 
     @PostMapping("/register")

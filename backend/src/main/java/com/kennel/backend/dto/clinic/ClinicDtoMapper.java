@@ -2,18 +2,23 @@ package com.kennel.backend.dto.clinic;
 
 import com.kennel.backend.dto.clinic.request.ClinicRequestDto;
 import com.kennel.backend.dto.clinic.response.ClinicResponseDto;
+import com.kennel.backend.dto.userEntity.UserEntityDtoMapper;
 import com.kennel.backend.entity.Clinic;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class ClinicDtoMapper {
+    private final UserEntityDtoMapper userEntityDtoMapper;
+
     public ClinicResponseDto toDto(Clinic clinic){
         return ClinicResponseDto.builder()
                 .name(clinic.getName())
                 .address(clinic.getAddress())
-                .manager(clinic.getManager())
+                .manager(userEntityDtoMapper.toDto(clinic.getManager()))
                 .slug(clinic.getSlug())
                 .build();
     }

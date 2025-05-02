@@ -1,5 +1,8 @@
 package com.kennel.backend.dto.appointments.response;
 
+import com.kennel.backend.dto.clinic.response.ClinicResponseDto;
+import com.kennel.backend.dto.dog.response.DogResponseDTO;
+import com.kennel.backend.dto.userEntity.response.UserDetailsResponseDto;
 import com.kennel.backend.entity.Clinic;
 import com.kennel.backend.entity.Dog;
 import com.kennel.backend.entity.UserEntity;
@@ -12,10 +15,10 @@ import java.util.Date;
 public class AppointmentResponseDto {
     private Date appointmentTime;
     private AppointmentStatus status;
-    private UserEntity owner;
-    private Dog dog;
-    private UserEntity doctor;
-    private Clinic clinic;
+    private UserDetailsResponseDto owner;
+    private DogResponseDTO dog;
+    private UserDetailsResponseDto doctor;
+    private ClinicResponseDto clinic;
     private String slug;
     private String note;
 }

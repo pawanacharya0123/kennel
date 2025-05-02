@@ -8,6 +8,7 @@ import java.util.List;
 
 @Component
 public class JwtToPrincipalConvertor {
+
     public UserPrincipal convert(DecodedJWT decodedJWT){
         return UserPrincipal.builder()
                 .userId(Long.valueOf(decodedJWT.getSubject()))

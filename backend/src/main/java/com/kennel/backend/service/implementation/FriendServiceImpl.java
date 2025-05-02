@@ -76,7 +76,6 @@ public class FriendServiceImpl implements FriendService {
 
         if(status.equals(FriendStatus.ACCEPTED) &&
                 !friendship.getReceiver().getId().equals(currentAuthUser.getId())){
-//            throw new IllegalStateException("You can not Accept your own friend request.");
             throw new ForbiddenActionException(Friend.class);
         }
         if(status.equals(FriendStatus.DECLINED) &&

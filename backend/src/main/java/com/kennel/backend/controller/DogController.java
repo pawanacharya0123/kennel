@@ -62,4 +62,6 @@ public class DogController {
         return ResponseEntity.noContent().build();
     }
 
+    //get Vaccines by dog
+
 }

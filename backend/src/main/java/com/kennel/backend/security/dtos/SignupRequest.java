@@ -1,11 +1,11 @@
 package com.kennel.backend.security.dtos;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class SignupRequest {
     private String email;
     private String password;

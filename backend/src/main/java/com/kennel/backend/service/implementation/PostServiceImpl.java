@@ -109,13 +109,10 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponseDto createPost(PostRequestDto postRequestDto) {
-        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        UserEntity userEntity = userEntityRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new EntityNotFoundException(UserEntity.class, "email", userEmail));
+        UserEntity currentAuthUser = authUtility.getCurrentUser();
 
         Post post = postDtoMapper.toEntity(postRequestDto);
-        post.setCreatedBy(userEntity);
+        post.setCreatedBy(currentAuthUser);
 
         String initialSlug = SlugGenerator.toSlug( post.getContent().substring(0,10));
         String finalSlug = ensureUniqueDogSlug(initialSlug);
@@ -143,8 +140,8 @@ public class PostServiceImpl implements PostService {
 
 
     private void checkAccess(Post post){
-        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        if(!post.getCreatedBy().getEmail().equals(userEmail)){
+        UserEntity currentAuthUser = authUtility.getCurrentUser();
+        if(!post.getCreatedBy().getEmail().equals(currentAuthUser.getEmail())){
             throw new ForbiddenActionException(Comment.class);
         }
     }
@@ -162,6 +159,7 @@ public class PostServiceImpl implements PostService {
     private Boolean isFollowing(UserEntity currentAuthUser, UserEntity userEntity){
         return  followerRepository.existsByFollowerAndFollowing(currentAuthUser, userEntity);
     }
+
     private Boolean isAFriend(UserEntity currentAuthUser, UserEntity userEntity){
         return
                 friendRepository.existsBySenderAndReceiverAndStatus(currentAuthUser, userEntity, FriendStatus.ACCEPTED)

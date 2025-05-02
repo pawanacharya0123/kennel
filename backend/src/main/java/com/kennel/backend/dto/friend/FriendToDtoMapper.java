@@ -2,6 +2,7 @@ package com.kennel.backend.dto.friend;
 
 import com.kennel.backend.dto.friend.request.FriendRequestDto;
 import com.kennel.backend.dto.friend.response.FriendResponseDto;
+import com.kennel.backend.dto.userEntity.UserEntityDtoMapper;
 import com.kennel.backend.entity.Friend;
 import com.kennel.backend.entity.UserEntity;
 import com.kennel.backend.exception.EntityNotFoundException;
@@ -15,6 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FriendToDtoMapper {
     private final UserEntityRepository userEntityRepository;
+    private final UserEntityDtoMapper userEntityDtoMapper;
 
     public Friend toEntity(FriendRequestDto friendRequestDto){
         UserEntity receiver= userEntityRepository.findById(friendRequestDto.getReceiver())
@@ -28,8 +30,8 @@ public class FriendToDtoMapper {
 
     public FriendResponseDto toDto(Friend friend){
         return FriendResponseDto.builder()
-                .from(friend.getSender())
-                .to(friend.getSender())
+                .from(userEntityDtoMapper.toDto(friend.getSender()))
+                .to(userEntityDtoMapper.toDto(friend.getSender()))
                 .status(friend.getStatus())
                 .build();
     }

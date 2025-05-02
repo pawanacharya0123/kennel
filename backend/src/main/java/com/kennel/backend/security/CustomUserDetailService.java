@@ -24,10 +24,6 @@ public class CustomUserDetailService implements UserDetailsService {
                 .userId(user.getId())
                 .email(user.getEmail())
                 .authorities(
-//                        Arrays.stream(user.getRole().split(","))
-//                                .map(String::trim)
-//                                .map(SimpleGrantedAuthority::new)
-//                                .collect(Collectors.toList())
                         user.getRoles().stream()
                                 .map(Role::getRoleName)
                                 .map(Enum::toString)
