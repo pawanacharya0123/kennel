@@ -58,6 +58,10 @@ public class UserEntity {
     @Filter(name = "softDeleteFilter", condition = "deleted = false")
     private List<Dog> dogs;
 
+    @OneToMany(mappedBy = "owner")
+    @Filter(name = "softDeleteFilter", condition = "deleted = false")
+    private List<Kennel> kennels;
+
     @OneToOne(mappedBy = "manager", fetch = FetchType.LAZY)
     private Clinic clinic;
 

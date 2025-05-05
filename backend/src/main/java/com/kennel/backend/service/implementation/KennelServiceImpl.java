@@ -9,6 +9,7 @@ import com.kennel.backend.entity.Kennel;
 import com.kennel.backend.entity.UserEntity;
 import com.kennel.backend.exception.EntityNotFoundException;
 import com.kennel.backend.exception.ForbiddenActionException;
+import com.kennel.backend.protection.customAnnotation.EnableSoftDeleteFilter;
 import com.kennel.backend.repository.KennelRepository;
 import com.kennel.backend.repository.UserEntityRepository;
 import com.kennel.backend.security.AuthUtility;
@@ -16,6 +17,7 @@ import com.kennel.backend.service.KennelService;
 import com.kennel.backend.utility.SlugGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -50,8 +52,10 @@ public class KennelServiceImpl implements KennelService {
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public KennelResponseDto updateKennel(String slug, KennelUpdateRequestDto kennelUpdateRequestDto) {
-        Kennel kennel = kennelRepository.findBySlugAndDeletedFalse(slug)
+        Kennel kennel = kennelRepository.findBySlug(slug)
+//                .findBySlugAndDeletedFalse(slug)
                 .orElseThrow(() -> new EntityNotFoundException(Kennel.class, "slug", slug));
 
         checkAccess(kennel);
@@ -70,27 +74,40 @@ public class KennelServiceImpl implements KennelService {
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public KennelResponseDto getKennelById(Long kennelId) {
-        Kennel kennel = kennelRepository.findByIdAndDeletedFalse(kennelId)
+        Kennel kennel = kennelRepository.findById(kennelId)
+//                .findByIdAndDeletedFalse(kennelId)
                 .orElseThrow(() -> new EntityNotFoundException(Kennel.class, "id", kennelId));
         return kennelDtoMapper.toDto(kennel);
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public Page<KennelResponseDto> getAllKennels(Pageable pageable) {
-        Page<Kennel> kennels = kennelRepository.findByDeletedFalse(pageable);
+        Page<Kennel> kennels = kennelRepository.findAll(pageable);
+//                .findByDeletedFalse(pageable);
         return kennelDtoMapper.toDto(kennels);
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public Page<KennelResponseDto> getKennelsByOwner(Long ownerId, Pageable pageable) {
-        Page<Kennel> kennels = kennelRepository.findByOwnerIdAndDeletedFalse(ownerId, pageable);
+        UserEntity userEntity = userEntityRepository.findById(ownerId)
+                .orElseThrow(() -> new EntityNotFoundException(UserEntity.class, "id", ownerId));
+        if(!userEntity.getKennels().isEmpty()){
+            return Page.empty();
+        }
+        Page<Kennel> kennels = kennelRepository.findByOwnerId(ownerId, pageable);
+//                .findByOwnerIdAndDeletedFalse(ownerId, pageable);
         return kennelDtoMapper.toDto(kennels);
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public void deleteKennel(String slug) {
-        Kennel kennel = kennelRepository.findBySlugAndDeletedFalse(slug)
+        Kennel kennel = kennelRepository.findBySlug(slug)
+//                .findBySlugAndDeletedFalse(slug)
                 .orElseThrow(() -> new EntityNotFoundException(Kennel.class, "slug", slug));
 
         checkAccess(kennel);
@@ -99,8 +116,10 @@ public class KennelServiceImpl implements KennelService {
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public KennelResponseDto getKennelBySlug(String slug) {
-        Kennel kennel = kennelRepository.findBySlugAndDeletedFalse(slug)
+        Kennel kennel = kennelRepository.findBySlug(slug)
+//                .findBySlugAndDeletedFalse(slug)
                 .orElseThrow(() -> new EntityNotFoundException(Kennel.class, "slug", slug));
         return kennelDtoMapper.toDto(kennel);
     }
@@ -112,6 +131,7 @@ public class KennelServiceImpl implements KennelService {
         }
     }
 
+    @EnableSoftDeleteFilter
     private void validateKennelNameUnique(String name, String location){
         boolean exists = kennelRepository.existsByNameAndLocation(name, location);
         if (exists) {
@@ -119,6 +139,7 @@ public class KennelServiceImpl implements KennelService {
         }
     }
 
+    @EnableSoftDeleteFilter
     private String ensureUniqueKennelSlug(String baseSlug) {
         String slug = baseSlug;
         int counter = 1;

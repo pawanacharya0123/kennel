@@ -5,6 +5,7 @@ import com.kennel.backend.dto.kennel.request.KennelRequestDto;
 import com.kennel.backend.dto.kennel.request.KennelUpdateRequestDto;
 import com.kennel.backend.dto.kennel.response.KennelResponseDto;
 import com.kennel.backend.entity.Kennel;
+import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
