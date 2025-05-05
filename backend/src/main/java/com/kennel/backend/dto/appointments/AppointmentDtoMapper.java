@@ -3,6 +3,7 @@ package com.kennel.backend.dto.appointments;
 import com.kennel.backend.dto.appointments.request.AppointmentRequestDto;
 import com.kennel.backend.dto.appointments.response.AppointmentResponseDto;
 import com.kennel.backend.dto.clinic.ClinicDtoMapper;
+import com.kennel.backend.dto.doctor.DoctorDtoMapper;
 import com.kennel.backend.dto.dog.DogDtoMapper;
 import com.kennel.backend.dto.userEntity.UserEntityDtoMapper;
 import com.kennel.backend.entity.Appointment;
@@ -15,6 +16,7 @@ import com.kennel.backend.repository.DogRepository;
 import com.kennel.backend.repository.UserEntityRepository;
 import com.kennel.backend.security.AuthUtility;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -27,6 +29,7 @@ public class AppointmentDtoMapper {
     private final UserEntityRepository userEntityRepository;
     private final AuthUtility authUtility;
     private final UserEntityDtoMapper userEntityDtoMapper;
+    private final DoctorDtoMapper doctorDtoMapper;
     private final DogDtoMapper dogDtoMapper;
     private final ClinicDtoMapper clinicDtoMapper;
 
@@ -55,7 +58,7 @@ public class AppointmentDtoMapper {
                 .status(appointment.getStatus())
                 .appointmentTime(appointment.getAppointmentTime())
                 .dog(dogDtoMapper.toDto(appointment.getDog()))
-                .doctor(userEntityDtoMapper.toDto(appointment.getDoctor()))
+                .doctor(doctorDtoMapper.toDto(appointment.getDoctor()))
                 .owner(userEntityDtoMapper.toDto(appointment.getOwner()))
                 .clinic(clinicDtoMapper.toDto(appointment.getClinic()))
                 .note(appointment.getNote())
@@ -65,5 +68,9 @@ public class AppointmentDtoMapper {
         return appointments.stream()
                 .map(this::toDto)
                 .toList();
+    }
+
+    public Page<AppointmentResponseDto> toDto(Page<Appointment> appointments){
+        return appointments.map(this::toDto);
     }
 }

@@ -2,12 +2,14 @@ package com.kennel.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.Builder;
+import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.Date;
 
 @Entity
 @Builder
+@Getter
 public class VaccineRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

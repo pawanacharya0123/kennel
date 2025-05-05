@@ -5,6 +5,7 @@ import com.kennel.backend.dto.reaction.response.ReactionResponseDto;
 import com.kennel.backend.dto.userEntity.UserEntityDtoMapper;
 import com.kennel.backend.entity.Reaction;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -32,5 +33,8 @@ public class ReactionMapper {
         return reactions.stream()
                 .map(this::toDto)
                 .toList();
+    }
+    public Page<ReactionResponseDto> toDto(Page<Reaction> reactions){
+        return reactions.map(this::toDto);
     }
 }

@@ -9,6 +9,10 @@ import com.kennel.backend.entity.Reaction;
 import com.kennel.backend.entity.UserEntity;
 import com.kennel.backend.service.PostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -22,8 +26,10 @@ public class PostController {
     private final PostService postService;
 
     @GetMapping
-    public ResponseEntity<List<PostResponseDto>> getAllPosts(){
-        return ResponseEntity.ok(postService.getAllPost());
+    public ResponseEntity<Page<PostResponseDto>> getAllPosts(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return ResponseEntity.ok(postService.getAllPost(pageable));
     }
 
     @GetMapping("/{id}")
@@ -37,8 +43,11 @@ public class PostController {
     }
 
     @GetMapping("/creator/{userId}")
-    public ResponseEntity<List<PostResponseDto>> getPostsByUser(@PathVariable Long userId){
-        return ResponseEntity.ok(postService.getPostsByUser(userId));
+    public ResponseEntity<Page<PostResponseDto>> getPostsByUser(
+            @PathVariable Long userId,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return ResponseEntity.ok(postService.getPostsByUser(userId, pageable));
     }
 
     @PreAuthorize("@postSecurity.isOwner(#slug, authentication.name)")

@@ -31,6 +31,7 @@ public class CustomUserDetailService implements UserDetailsService {
                                .toList()
                 )
                 .password(user.getPassword())
+                .isVerified(user.isVerified())
                 .build();
     }
 }

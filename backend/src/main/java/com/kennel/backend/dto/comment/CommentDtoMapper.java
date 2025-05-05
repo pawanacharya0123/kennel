@@ -5,6 +5,7 @@ import com.kennel.backend.dto.comment.response.CommentResponseDto;
 import com.kennel.backend.dto.userEntity.UserEntityDtoMapper;
 import com.kennel.backend.entity.Comment;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -31,6 +32,9 @@ public class CommentDtoMapper {
         return comments.stream()
                 .map(this::toDto)
                 .toList();
+    }
+    public Page<CommentResponseDto> toDto(Page<Comment> comments){
+        return comments.map(this::toDto);
     }
 
 }

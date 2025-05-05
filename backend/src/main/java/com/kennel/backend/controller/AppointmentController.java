@@ -6,11 +6,14 @@ import com.kennel.backend.entity.enums.AppointmentStatus;
 import com.kennel.backend.service.AppointmentService;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,13 +22,18 @@ public class AppointmentController {
     private final AppointmentService appointmentService;
 
     @GetMapping
-    public ResponseEntity<List<AppointmentResponseDto>> getAllAppointments(){
-        return ResponseEntity.ok(appointmentService.getAll());
+    public ResponseEntity<Page<AppointmentResponseDto>> getAllAppointments(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return ResponseEntity.ok(appointmentService.getAll(pageable));
     }
 
     @GetMapping("/dog/{dogSlug}")
-    public ResponseEntity<List<AppointmentResponseDto>> getAllAppointmentsByDog(@PathVariable String dogSlug){
-        return ResponseEntity.ok(appointmentService.getAllAppointmentsByDog(dogSlug));
+    public ResponseEntity<Page<AppointmentResponseDto>> getAllAppointmentsByDog(
+            @PathVariable String dogSlug,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return ResponseEntity.ok(appointmentService.getAllAppointmentsByDog(dogSlug, pageable));
     }
 
     @PostMapping

@@ -3,6 +3,7 @@ package com.kennel.backend.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kennel.backend.dto.comment.request.CommentRequestDto;
 import com.kennel.backend.dto.comment.response.CommentResponseDto;
+import com.kennel.backend.dto.post.response.PostResponseDto;
 import com.kennel.backend.dto.userEntity.response.UserDetailsResponseDto;
 import com.kennel.backend.entity.UserEntity;
 import com.kennel.backend.security.JwtDecoder;
@@ -19,6 +20,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
@@ -80,13 +84,15 @@ public class CommentControllerTest {
                 new CommentResponseDto("slug2", "Interesting read", UserDetailsResponseDto.builder()
                         .email("user2@x.com").build())
         );
-        when(commentService.findCommentByPost(anyString()))
-                .thenReturn(commentResponseDto);
+        Page<CommentResponseDto> commenstPage= new PageImpl<>(commentResponseDto);
+
+        when(commentService.findCommentByPost(anyString(), any(Pageable.class)))
+                .thenReturn(commenstPage);
 
         mockMvc.perform(get("/comments/post/slug1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(2))
-                .andExpect(jsonPath("$[0].slug").value("slug1"));
+                .andExpect(jsonPath("$.content.size()").value(2))
+                .andExpect(jsonPath("$.content[0].slug").value("slug1"));
     }
 
     @Test

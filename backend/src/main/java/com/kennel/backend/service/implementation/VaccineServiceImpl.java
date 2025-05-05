@@ -14,6 +14,8 @@ import com.kennel.backend.security.AuthUtility;
 import com.kennel.backend.service.VaccineService;
 import com.kennel.backend.utility.SlugGenerator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,8 +29,8 @@ public class VaccineServiceImpl implements VaccineService {
     private final AuthUtility authUtility;
 
     @Override
-    public List<VaccineResponseDto> getAll() {
-        return vaccineDtoMapper.toDto(vaccineRepository.findAll());
+    public Page<VaccineResponseDto> getAll(Pageable pageable) {
+        return vaccineDtoMapper.toDto(vaccineRepository.findAll(pageable));
     }
 
     @Override

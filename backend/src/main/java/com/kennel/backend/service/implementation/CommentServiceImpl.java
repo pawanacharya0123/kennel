@@ -10,6 +10,7 @@ import com.kennel.backend.entity.enums.FriendStatus;
 import com.kennel.backend.exception.EntityNotFoundException;
 import com.kennel.backend.exception.ForbiddenActionException;
 import com.kennel.backend.exception.UnauthorizedAccessException;
+import com.kennel.backend.protection.customAnnotation.EnableSoftDeleteFilter;
 import com.kennel.backend.repository.CommentRepository;
 import com.kennel.backend.repository.FriendRepository;
 import com.kennel.backend.repository.PostRepository;
@@ -18,6 +19,8 @@ import com.kennel.backend.security.AuthUtility;
 import com.kennel.backend.service.CommentService;
 import com.kennel.backend.utility.SlugGenerator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -35,14 +38,15 @@ public class CommentServiceImpl implements CommentService {
     private final FriendRepository friendRepository;
     
     @Override
-    public List<CommentResponseDto> findCommentByPost(String postSlug) {
+    public Page<CommentResponseDto> findCommentByPost(String postSlug, Pageable pageable) {
         return commentDtoMapper
-                .toDto(commentRepository.findByPostSlug(postSlug));
+                .toDto(commentRepository.findByPostSlugAndDeletedFalse(postSlug, pageable));
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public CommentResponseDto addCommentToPost(CommentRequestDto commentRequestDto, String postSlug) {
-        Post post = postRepository.findBySlug(postSlug)
+        Post post = postRepository.findBySlugAndDeletedFalse(postSlug)
                 .orElseThrow(() -> new EntityNotFoundException(Post.class, "slug", postSlug));
 
         UserEntity currentAuthUser = authUtility.getCurrentUser();
@@ -59,19 +63,21 @@ public class CommentServiceImpl implements CommentService {
 
         Comment comment = commentDtoMapper.toEntity(commentRequestDto);
         comment.setPost(post);
+        post.getComments().add(comment);
 
         String initialSlug = SlugGenerator.toSlug( comment.getContent().substring(0,10));
         String finalSlug = ensureUniqueDogSlug(initialSlug);
 
         comment.setSlug(finalSlug);
         comment.setCreatedBy(currentAuthUser);
+        comment.setDeleted(false);
 
         return commentDtoMapper.toDto(commentRepository.save(comment));
     }
 
     @Override
     public CommentResponseDto updateComment(CommentRequestDto commentRequestDto, String slug) {
-        Comment comment = commentRepository.findBySlug(slug)
+        Comment comment = commentRepository.findBySlugAndDeletedFalse(slug)
                 .orElseThrow(() -> new EntityNotFoundException(Comment.class, "slug", slug));
 
         checkAccess(comment);
@@ -94,12 +100,13 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void deleteComment(String slug) {
-        Comment comment = commentRepository.findBySlug(slug)
+        Comment comment = commentRepository.findBySlugAndDeletedFalse(slug)
                 .orElseThrow(() -> new EntityNotFoundException(Comment.class, "slug", slug));
 
         checkAccess(comment);
-
-        commentRepository.delete(comment);
+        comment.setDeleted(true);
+        commentRepository.save(comment);
+//        commentRepository.delete(comment);
     }
 
     private void checkAccess(Comment comment){

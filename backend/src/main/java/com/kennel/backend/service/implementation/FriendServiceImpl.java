@@ -13,6 +13,8 @@ import com.kennel.backend.repository.UserEntityRepository;
 import com.kennel.backend.security.AuthUtility;
 import com.kennel.backend.service.FriendService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -90,32 +92,32 @@ public class FriendServiceImpl implements FriendService {
     }
 
     @Override
-    public List<FriendResponseDto> getFriends() {
+    public Page<FriendResponseDto> getFriends(Pageable pageable) {
         UserEntity currentAuthUser= authUtility.getCurrentUser();
 
         return friendToDtoMapper.toDto(
             friendRepository
-                    .findBySenderOrReceiverAndStatus(currentAuthUser, currentAuthUser, FriendStatus.ACCEPTED)
+                    .findBySenderOrReceiverAndStatus(currentAuthUser, currentAuthUser, FriendStatus.ACCEPTED, pageable)
         );
     }
 
     @Override
-    public List<FriendResponseDto> getSentPendingRequests() {
+    public Page<FriendResponseDto> getSentPendingRequests(Pageable pageable) {
         UserEntity currentAuthUser= authUtility.getCurrentUser();
 
         return friendToDtoMapper.toDto(
                 friendRepository
-                        .findBySenderAndStatus(currentAuthUser, FriendStatus.REQUESTED)
+                        .findBySenderAndStatus(currentAuthUser, FriendStatus.REQUESTED, pageable)
         );
     }
 
     @Override
-    public List<FriendResponseDto> getReceivedPendingRequests() {
+    public Page<FriendResponseDto> getReceivedPendingRequests(Pageable pageable) {
         UserEntity currentAuthUser= authUtility.getCurrentUser();
 
         return friendToDtoMapper.toDto(
                 friendRepository
-                        .findByReceiverAndStatus(currentAuthUser, FriendStatus.REQUESTED)
+                        .findByReceiverAndStatus(currentAuthUser, FriendStatus.REQUESTED, pageable)
         );
     }
 }

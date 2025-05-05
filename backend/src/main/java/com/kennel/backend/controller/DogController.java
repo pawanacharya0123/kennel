@@ -6,11 +6,14 @@ import com.kennel.backend.dto.dog.response.DogResponseDTO;
 import com.kennel.backend.entity.Dog;
 import com.kennel.backend.service.DogService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/dogs")
@@ -34,13 +37,19 @@ public class DogController {
     }
 
     @GetMapping("/owner/{userId}")
-    public ResponseEntity<List<DogResponseDTO>> getDogsByUser(@PathVariable Long userId){
-        return ResponseEntity.ok(dogService.getDogsByUser(userId));
+    public ResponseEntity<Page<DogResponseDTO>> getDogsByUser(
+            @PathVariable Long userId,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)Pageable pageable
+            ){
+        return ResponseEntity.ok(dogService.getDogsByUser(userId, pageable));
     }
 
     @GetMapping("/kennel/{kennelSlug}")
-    public ResponseEntity<List<DogResponseDTO>> getDogsByKannel(@PathVariable String kennelSlug){
-        return ResponseEntity.ok(dogService.getDogsByKennel(kennelSlug));
+    public ResponseEntity<Page<DogResponseDTO>> getDogsByKannel(
+            @PathVariable String kennelSlug,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)Pageable pageable
+    ){
+        return ResponseEntity.ok(dogService.getDogsByKennel(kennelSlug, pageable));
     }
 
     @PreAuthorize("@dogSecurity.isOwner(#slug, authentication.name)")

@@ -8,6 +8,7 @@ import com.kennel.backend.entity.UserEntity;
 import com.kennel.backend.exception.EntityNotFoundException;
 import com.kennel.backend.repository.UserEntityRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
@@ -44,6 +45,10 @@ public class FollowDtoMapper {
         return followers.stream()
                 .map(this::toDto)
                 .toList();
+    }
+
+    public Page<FollowResponseDto> toDto(Page<Follower> followers){
+        return followers.map(this::toDto);
     }
 
 }

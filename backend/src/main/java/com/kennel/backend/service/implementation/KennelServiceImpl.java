@@ -16,6 +16,8 @@ import com.kennel.backend.service.KennelService;
 import com.kennel.backend.utility.SlugGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -36,20 +38,20 @@ public class KennelServiceImpl implements KennelService {
 
         Kennel kennel = kennelDtoMapper.toEntity(kennelCreateRequestDto);
 
+        validateKennelNameUnique(kennel.getName(), kennel.getLocation());
+
         String initialSlug = SlugGenerator.toSlug(kennel.getName() + "-" + kennel.getLocation());
         String finalSlug = ensureUniqueDogSlug(initialSlug);
 
         kennel.setOwner(currentAuthUser);
         kennel.setSlug(finalSlug);
 
-        validateDogNameUnique(kennel.getName(), kennel.getLocation());
-
         return kennelDtoMapper.toDto(kennelRepository.save(kennel));
     }
 
     @Override
     public KennelResponseDto updateKennel(String slug, KennelUpdateRequestDto kennelUpdateRequestDto) {
-        Kennel kennel = kennelRepository.findBySlug(slug)
+        Kennel kennel = kennelRepository.findBySlugAndDeletedFalse(slug)
                 .orElseThrow(() -> new EntityNotFoundException(Kennel.class, "slug", slug));
 
         checkAccess(kennel);
@@ -62,33 +64,33 @@ public class KennelServiceImpl implements KennelService {
                 .establishedAt(updatedKennelRequest.getEstablishedAt())
                 .build();
 
-        validateDogNameUnique(updatedKennel.getName(), updatedKennel.getLocation());
+        validateKennelNameUnique(updatedKennel.getName(), updatedKennel.getLocation());
 
         return kennelDtoMapper.toDto(kennelRepository.save(updatedKennel));
     }
 
     @Override
     public KennelResponseDto getKennelById(Long kennelId) {
-        Kennel kennel = kennelRepository.findById(kennelId)
+        Kennel kennel = kennelRepository.findByIdAndDeletedFalse(kennelId)
                 .orElseThrow(() -> new EntityNotFoundException(Kennel.class, "id", kennelId));
         return kennelDtoMapper.toDto(kennel);
     }
 
     @Override
-    public List<KennelResponseDto> getAllKennels() {
-        List<Kennel> kennels = kennelRepository.findAll();
+    public Page<KennelResponseDto> getAllKennels(Pageable pageable) {
+        Page<Kennel> kennels = kennelRepository.findByDeletedFalse(pageable);
         return kennelDtoMapper.toDto(kennels);
     }
 
     @Override
-    public List<KennelResponseDto> getKennelsByOwner(Long ownerId) {
-        List<Kennel> kennels = kennelRepository.findByOwnerId(ownerId);
+    public Page<KennelResponseDto> getKennelsByOwner(Long ownerId, Pageable pageable) {
+        Page<Kennel> kennels = kennelRepository.findByOwnerIdAndDeletedFalse(ownerId, pageable);
         return kennelDtoMapper.toDto(kennels);
     }
 
     @Override
     public void deleteKennel(String slug) {
-        Kennel kennel = kennelRepository.findBySlug(slug)
+        Kennel kennel = kennelRepository.findBySlugAndDeletedFalse(slug)
                 .orElseThrow(() -> new EntityNotFoundException(Kennel.class, "slug", slug));
 
         checkAccess(kennel);
@@ -98,7 +100,7 @@ public class KennelServiceImpl implements KennelService {
 
     @Override
     public KennelResponseDto getKennelBySlug(String slug) {
-        Kennel kennel = kennelRepository.findBySlug(slug)
+        Kennel kennel = kennelRepository.findBySlugAndDeletedFalse(slug)
                 .orElseThrow(() -> new EntityNotFoundException(Kennel.class, "slug", slug));
         return kennelDtoMapper.toDto(kennel);
     }
@@ -110,10 +112,10 @@ public class KennelServiceImpl implements KennelService {
         }
     }
 
-    private void validateDogNameUnique(String name, String location){
+    private void validateKennelNameUnique(String name, String location){
         boolean exists = kennelRepository.existsByNameAndLocation(name, location);
         if (exists) {
-            throw new IllegalStateException("Dog with name '" + name + "' already exists for this owner.");
+            throw new IllegalStateException("Kennel with name '" + name + "' already exists for this owner.");
         }
     }
 

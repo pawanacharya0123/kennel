@@ -8,6 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
@@ -97,6 +101,33 @@ public class PostRepositoryTest {
 
         assertEquals(1, posts.size());
         assertEquals("user-post", posts.get(0).getSlug());
+    }
+
+    @Test
+    void shouldFindPostsByUserWithPagination() {
+        Post p1 = Post.builder().content("Post 1").slug("slug-1").createdBy(user).build();
+        Post p2 = Post.builder().content("Post 2").slug("slug-2").createdBy(user).build();
+        entityManager.persist(p1);
+        entityManager.persist(p2);
+
+        Pageable pageable = PageRequest.of(0, 1, Sort.by("createdAt").descending());
+        Page<Post> page = postRepository.findByCreatedBy(user, pageable);
+
+        assertEquals(1, page.getContent().size());
+        assertEquals("slug-2", page.getContent().get(0).getSlug()); // Based on createdAt order
+    }
+    @Test
+    void shouldFindPostsByUserWithPaginationNextPage() {
+        Post p1 = Post.builder().content("Post 1").slug("slug-1").createdBy(user).build();
+        Post p2 = Post.builder().content("Post 2").slug("slug-2").createdBy(user).build();
+        entityManager.persist(p1);
+        entityManager.persist(p2);
+
+        Pageable pageable = PageRequest.of(1, 1, Sort.by("createdAt").descending());
+        Page<Post> page = postRepository.findByCreatedBy(user, pageable);
+
+        assertEquals(1, page.getContent().size());
+        assertEquals("slug-1", page.getContent().get(0).getSlug()); // Based on createdAt order
     }
 
 }

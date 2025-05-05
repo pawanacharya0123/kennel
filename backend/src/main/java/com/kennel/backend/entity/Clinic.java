@@ -1,9 +1,11 @@
 package com.kennel.backend.entity;
 
+import com.kennel.backend.entity.abstractEntity.SoftDeletableEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
@@ -17,7 +19,8 @@ import java.util.Set;
 @Builder
 @Getter
 @Setter
-public class Clinic {
+@Filter(name = "softDeleteFilter", condition = "deleted = false")
+public class Clinic extends SoftDeletableEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -39,6 +42,7 @@ public class Clinic {
     private UserEntity manager;
 
     @OneToMany(mappedBy = "clinic")
+    @Filter(name = "softDeleteFilter", condition = "deleted = false")
     private List<VaccineRecord> vaccines;
 
     @ManyToMany

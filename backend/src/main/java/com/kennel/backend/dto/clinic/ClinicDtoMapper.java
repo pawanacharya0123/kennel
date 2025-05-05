@@ -5,6 +5,7 @@ import com.kennel.backend.dto.clinic.response.ClinicResponseDto;
 import com.kennel.backend.dto.userEntity.UserEntityDtoMapper;
 import com.kennel.backend.entity.Clinic;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -34,5 +35,9 @@ public class ClinicDtoMapper {
         return clinics.stream()
                 .map(this::toDto)
                 .toList();
+    }
+
+    public Page<ClinicResponseDto> toDto(Page<Clinic> clinics){
+        return clinics.map(this::toDto);
     }
 }

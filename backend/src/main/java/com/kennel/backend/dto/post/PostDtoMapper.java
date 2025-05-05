@@ -6,6 +6,7 @@ import com.kennel.backend.dto.userEntity.UserEntityDtoMapper;
 import com.kennel.backend.entity.Post;
 import jakarta.persistence.Column;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -33,6 +34,10 @@ public class PostDtoMapper {
         return posts.stream()
                 .map(this::toDto)
                 .toList();
+    }
+
+    public Page<PostResponseDto> toDto(Page<Post> posts){
+        return posts.map(this::toDto);
     }
 
 }

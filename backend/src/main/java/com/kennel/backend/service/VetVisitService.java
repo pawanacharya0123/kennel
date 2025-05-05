@@ -2,15 +2,19 @@ package com.kennel.backend.service;
 
 import com.kennel.backend.dto.vetVisit.request.VetVisitRequestDto;
 import com.kennel.backend.dto.vetVisit.response.VetVisitResponseDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface VetVisitService {
-    List<VetVisitResponseDto> getAllVisits();
+    Page<VetVisitResponseDto> getAllVisits(Pageable pageable);
+
+    Page<VetVisitResponseDto> getAllVisitsByDog(String dogSlug, Pageable pageable);
 
     VetVisitResponseDto createVetVisit(VetVisitRequestDto vetVisitRequestDto);
 
     VetVisitResponseDto getVisitById(Long id);
 
-    VetVisitResponseDto vaccinate(Long id, String slug);
+//    VetVisitResponseDto vaccinate(Long id, String slug);
 }

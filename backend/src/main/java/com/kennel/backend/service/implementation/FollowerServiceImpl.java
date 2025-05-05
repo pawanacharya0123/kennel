@@ -11,6 +11,8 @@ import com.kennel.backend.repository.UserEntityRepository;
 import com.kennel.backend.security.AuthUtility;
 import com.kennel.backend.service.FollowerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -70,16 +72,16 @@ public class FollowerServiceImpl implements FollowerService {
     }
 
     @Override
-    public List<FollowResponseDto> getAllFollowing() {
+    public Page<FollowResponseDto> getAllFollowing(Pageable pageable) {
         UserEntity currentAuthUser=authUtility.getCurrentUser();
 
-        return followDtoMapper.toDto(followerRepository.findByFollower(currentAuthUser));
+        return followDtoMapper.toDto(followerRepository.findByFollower(currentAuthUser, pageable));
     }
 
     @Override
-    public List<FollowResponseDto> getAllFollowers() {
+    public Page<FollowResponseDto> getAllFollowers(Pageable pageable) {
         UserEntity currentAuthUser= authUtility.getCurrentUser();
 
-        return followDtoMapper.toDto(followerRepository.findByFollowing(currentAuthUser));
+        return followDtoMapper.toDto(followerRepository.findByFollowing(currentAuthUser, pageable));
     }
 }

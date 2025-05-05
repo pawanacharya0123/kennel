@@ -2,14 +2,15 @@ package com.kennel.backend.controller;
 
 import com.kennel.backend.dto.vaccine.request.VaccineRequestDto;
 import com.kennel.backend.dto.vaccine.response.VaccineResponseDto;
-import com.kennel.backend.entity.Vaccine;
 import com.kennel.backend.service.VaccineService;
-import com.kennel.backend.service.implementation.VaccineServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,8 +19,10 @@ public class VaccineController {
     private final VaccineService vaccineService;
 
     @GetMapping
-    public ResponseEntity<List<VaccineResponseDto>> getAll(){
-        return ResponseEntity.ok(vaccineService.getAll());
+    public ResponseEntity<Page<VaccineResponseDto>> getAll(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return ResponseEntity.ok(vaccineService.getAll(pageable));
     }
 
     @PostMapping
@@ -31,5 +34,6 @@ public class VaccineController {
     public ResponseEntity<VaccineResponseDto> update(@PathVariable String slug, @RequestBody VaccineRequestDto vaccineRequestDto){
         return ResponseEntity.ok(vaccineService.update(slug, vaccineRequestDto));
     }
+
 
 }

@@ -6,19 +6,15 @@ import com.kennel.backend.dto.vetVisit.response.VetVisitResponseDto;
 import com.kennel.backend.entity.*;
 import com.kennel.backend.exception.EntityNotFoundException;
 import com.kennel.backend.exception.UnauthorizedAccessException;
+import com.kennel.backend.repository.DogRepository;
 import com.kennel.backend.repository.VaccineRepository;
 import com.kennel.backend.repository.VetVisitRepository;
 import com.kennel.backend.security.AuthUtility;
 import com.kennel.backend.service.VetVisitService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -27,11 +23,24 @@ public class VetVisitServiceImpl implements VetVisitService {
     private final AuthUtility authUtility;
     private final VetVisitDtoMapper vetVisitDtoMapper;
     private final VaccineRepository vaccineRepository;
+    private final DogRepository dogRepository;
 
     @Override
-    public List<VetVisitResponseDto> getAllVisits() {
+    public Page<VetVisitResponseDto> getAllVisits(Pageable pageable) {
         UserEntity currentAuthUser = authUtility.getCurrentUser();
-        return vetVisitDtoMapper.toDto(vetVisitRepository.findByOwner(currentAuthUser));
+        return vetVisitDtoMapper.toDto(vetVisitRepository.findByOwner(currentAuthUser, pageable));
+    }
+
+    @Override
+    public Page<VetVisitResponseDto> getAllVisitsByDog(String dogSlug, Pageable pageable) {
+        UserEntity currentAuthUser = authUtility.getCurrentUser();
+        Dog dog = dogRepository.findBySlug(dogSlug)
+                .orElseThrow(() -> new EntityNotFoundException(Dog.class, "slug", dogSlug));
+
+        if(!dog.getOwner().equals(currentAuthUser)){
+            throw new UnauthorizedAccessException(VetVisit.class, currentAuthUser.getId());
+        }
+        return vetVisitDtoMapper.toDto(vetVisitRepository.findByDog(dog, pageable));
     }
 
     @Override
@@ -73,40 +82,4 @@ public class VetVisitServiceImpl implements VetVisitService {
         return vetVisitDtoMapper.toDto(visit);
     }
 
-    @Override
-    public VetVisitResponseDto vaccinate(Long id, String vaccineSlug) {
-        UserEntity currentAuthUser = authUtility.getCurrentUser();
-
-        VetVisit visit = vetVisitRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(VetVisit.class, "id", id));
-
-        if(!visit.getDoctor().getId().equals(currentAuthUser.getId())
-                && !visit.getClinic().getManager().getId().equals(currentAuthUser.getId())
-        ){
-            throw new UnauthorizedAccessException(VetVisit.class, currentAuthUser.getId());
-        }
-
-        Vaccine vaccine= vaccineRepository.findBySlug(vaccineSlug)
-                .orElseThrow(() -> new EntityNotFoundException(Vaccine.class, "slug", vaccineSlug));
-
-        VaccineRecord vaccineRecord= VaccineRecord.builder()
-                .vaccine(vaccine)
-                .dog(visit.getDog())
-                .vetVisit(visit)
-                .clinic(visit.getClinic())
-                .doctor(visit.getDoctor())
-                .vaccinationDate(new Date())
-                .build();
-
-//      VaccineRecordRepository.save(vaccineRecord);
-
-        visit.getVaccines().add(vaccineRecord);
-
-//        Set<VaccineRecord> vaccines = new HashSet<>(visit.getVaccines());
-//        vaccines.add(vaccineRecord);
-//
-//        visit.setVaccines(vaccines);
-
-        return vetVisitDtoMapper.toDto(visit);
-    }
 }

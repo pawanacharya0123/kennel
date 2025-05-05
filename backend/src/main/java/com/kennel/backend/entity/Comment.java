@@ -1,10 +1,11 @@
 package com.kennel.backend.entity;
 
+import com.kennel.backend.entity.abstractEntity.SoftDeletableEntity;
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.*;
 
 import java.util.Date;
 import java.util.List;
@@ -12,10 +13,10 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
+@Data
 @Builder(toBuilder = true)
-public class Comment {
+@Filter(name = "softDeleteFilter", condition = "deleted = false")
+public class Comment extends SoftDeletableEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -45,4 +46,5 @@ public class Comment {
 
     @Column(unique = true)
     private String slug;
+
 }

@@ -1,10 +1,12 @@
 package com.kennel.backend.entity;
 
+import com.kennel.backend.entity.abstractEntity.SoftDeletableEntity;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
@@ -21,7 +23,8 @@ import java.util.List;
             @UniqueConstraint(columnNames = {"name", "dog_owner_id"})
     }
 )
-public class Dog {
+@Filter(name = "softDeleteFilter", condition = "deleted = false")
+public class Dog extends SoftDeletableEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -61,6 +64,7 @@ public class Dog {
     private Kennel kennel;
 
     @OneToMany(mappedBy = "dog", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Filter(name = "softDeleteFilter", condition = "deleted = false")
     private List<VaccineRecord> vaccines;
 
     @CreationTimestamp
@@ -79,6 +83,4 @@ public class Dog {
             throw new IllegalStateException("Price must be set if dog is for sale.");
         }
     }
-
-
 }

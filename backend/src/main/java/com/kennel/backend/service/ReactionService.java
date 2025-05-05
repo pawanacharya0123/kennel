@@ -4,12 +4,14 @@ import com.kennel.backend.dto.reaction.request.ReactionRequestDto;
 import com.kennel.backend.dto.reaction.response.ReactionResponseDto;
 import com.kennel.backend.entity.Reaction;
 import com.kennel.backend.entity.enums.ReactionType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface ReactionService {
-    List<Reaction> getReactionsFromPost(String postSlug);
-    List<Reaction> getReactionsFromComment(String commentSlug);
+    Page<ReactionResponseDto> getReactionsFromPost(String postSlug, Pageable pageable);
+    Page<ReactionResponseDto> getReactionsFromComment(String commentSlug, Pageable pageable);
 
 //    Reaction createReaction(Reaction reaction);
 

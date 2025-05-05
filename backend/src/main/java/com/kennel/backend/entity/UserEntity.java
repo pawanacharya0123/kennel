@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
@@ -36,10 +37,10 @@ public class UserEntity {
     @Size(min = 8)
     private String password;
 
-    public UserEntity(String email, String password){
-        this.email=email;
-        this.password= password;
-    }
+//    public UserEntity(String email, String password){
+//        this.email=email;
+//        this.password= password;
+//    }
 
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -54,15 +55,18 @@ public class UserEntity {
     private String extraInfo;
 
     @OneToMany(mappedBy = "owner")
+    @Filter(name = "softDeleteFilter", condition = "deleted = false")
     private List<Dog> dogs;
 
     @OneToOne(mappedBy = "manager", fetch = FetchType.LAZY)
     private Clinic clinic;
 
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Filter(name = "softDeleteFilter", condition = "deleted = false")
     private List<Post> posts;
 
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Filter(name = "softDeleteFilter", condition = "deleted = false")
     private List<Comment> comments;
 
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -99,4 +103,13 @@ public class UserEntity {
     private Date updatedAt;
 
 
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "otp_verification_id", nullable = true)
+    private OtpVerification otpVerification;
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "forget_password_id", nullable = true)
+    private ForgetPassword forgetPassword;
+
+    private boolean isVerified= false;
 }

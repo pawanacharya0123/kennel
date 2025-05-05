@@ -19,6 +19,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
@@ -80,13 +83,14 @@ public class PostControllerTest {
                 new PostResponseDto("Another Post", "second-post", UserDetailsResponseDto.builder()
                         .email("user2@x.com").build())
         );
+        Page<PostResponseDto> page = new PageImpl<>(posts);
 
-        when(postService.getAllPost()).thenReturn(posts);
+        when(postService.getAllPost(any(Pageable.class))).thenReturn(page);
 
         mockMvc.perform(get("/posts"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(2))
-                .andExpect(jsonPath("$[0].slug").value("first-post"));
+                .andExpect(jsonPath("$.content.size()").value(2))
+                .andExpect(jsonPath("$.content[0].slug").value("first-post"));
     }
 
     @Test
@@ -121,13 +125,17 @@ public class PostControllerTest {
                 new PostResponseDto("Another Post", "second-post",UserDetailsResponseDto.builder()
                         .email("user1@x.com").build())
         );
+        Page<PostResponseDto> page = new PageImpl<>(posts);
 
-        when(postService.getPostsByUser(anyLong())).thenReturn(posts);
+        when(postService.getPostsByUser(anyLong(), any(Pageable.class))).thenReturn(page);
 
-        mockMvc.perform(get("/posts/creator/1"))
+        mockMvc.perform(get("/posts/creator/1")
+                        .param("page", "0")
+                        .param("size", "10")
+                )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(2))
-                .andExpect(jsonPath("$[0].slug").value("first-post"));
+                .andExpect(jsonPath("$.content.size()").value(2))
+                .andExpect(jsonPath("$.content[0].slug").value("first-post"));
     }
 
     @Test

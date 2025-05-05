@@ -15,6 +15,8 @@ import com.kennel.backend.repository.UserEntityRepository;
 import com.kennel.backend.service.DogService;
 import com.kennel.backend.utility.SlugGenerator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -37,13 +39,13 @@ public class DogServiceImpl implements DogService {
 
         Dog dog= dogDtoMapper.toEntity(dogCreateRequestDTO);
 
+        validateDogNameUnique(dog.getName(), user.getId());
+
         String initialSlug = SlugGenerator.toSlug(dog.getName() + "-" + dog.getBreed());
         String finalSlug = ensureUniqueDogSlug(initialSlug);
 
         dog.setSlug(finalSlug);
         dog.setOwner(user);
-
-        validateDogNameUnique(dog.getName(), user.getId());
 
         return dogDtoMapper.toDto(dogRepository.save(dog));
     }
@@ -56,14 +58,14 @@ public class DogServiceImpl implements DogService {
     }
 
     @Override
-    public List<DogResponseDTO> getDogsByUser(Long userId) {
-        List<Dog> dogs= dogRepository.findByOwnerId(userId);
+    public Page<DogResponseDTO> getDogsByUser(Long userId, Pageable pageable) {
+        Page<Dog> dogs= dogRepository.findByOwnerId(userId, pageable);
         return dogDtoMapper.toDto(dogs);
     }
 
     @Override
-    public List<DogResponseDTO> getDogsByKennel(String kennelSlug) {
-        List<Dog> dogs= dogRepository.findByKennelSlug(kennelSlug);
+    public Page<DogResponseDTO> getDogsByKennel(String kennelSlug, Pageable pageable) {
+        Page<Dog> dogs= dogRepository.findByKennelSlug(kennelSlug, pageable);
         return dogDtoMapper.toDto(dogs);
     }
 

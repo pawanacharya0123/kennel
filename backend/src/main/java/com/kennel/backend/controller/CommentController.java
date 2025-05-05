@@ -5,6 +5,10 @@ import com.kennel.backend.dto.comment.response.CommentResponseDto;
 import com.kennel.backend.entity.Comment;
 import com.kennel.backend.service.CommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +23,11 @@ public class CommentController {
     private final CommentService commentService;
 
     @GetMapping("/post/{postSlug}")
-    public ResponseEntity<List<CommentResponseDto>> getCommentsByPost(@PathVariable String postSlug){
-        return ResponseEntity.ok(commentService.findCommentByPost(postSlug));
+    public ResponseEntity<Page<CommentResponseDto>> getCommentsByPost(
+            @PathVariable String postSlug,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)Pageable pageable
+            ){
+        return ResponseEntity.ok(commentService.findCommentByPost(postSlug, pageable));
     }
 
     @PostMapping("post/{postSlug}")

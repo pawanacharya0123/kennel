@@ -4,10 +4,13 @@ import com.kennel.backend.dto.follow.request.FollowRequestDto;
 import com.kennel.backend.dto.follow.response.FollowResponseDto;
 import com.kennel.backend.service.FollowerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/follows")
@@ -33,12 +36,16 @@ public class FollowerController {
     }
 
     @GetMapping("/followers")
-    public ResponseEntity<List<FollowResponseDto>> getAllFollowers(){
-        return ResponseEntity.ok(followerService.getAllFollowers());
+    public ResponseEntity<Page<FollowResponseDto>> getAllFollowers(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return ResponseEntity.ok(followerService.getAllFollowers(pageable));
     }
 
     @GetMapping("/following")
-    public ResponseEntity<List<FollowResponseDto>> getAllFollowing(){
-        return ResponseEntity.ok(followerService.getAllFollowing());
+    public ResponseEntity<Page<FollowResponseDto>> getAllFollowing(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)Pageable pageable
+    ){
+        return ResponseEntity.ok(followerService.getAllFollowing(pageable));
     }
 }

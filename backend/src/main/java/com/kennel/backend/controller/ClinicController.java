@@ -2,15 +2,18 @@ package com.kennel.backend.controller;
 
 import com.kennel.backend.dto.clinic.request.ClinicRequestDto;
 import com.kennel.backend.dto.clinic.response.ClinicResponseDto;
+import com.kennel.backend.dto.doctor.response.DoctorResponseDto;
+import com.kennel.backend.dto.userEntity.response.UserDetailsResponseDto;
 import com.kennel.backend.entity.Clinic;
 import com.kennel.backend.entity.UserEntity;
 import com.kennel.backend.service.ClinicService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,8 +22,10 @@ public class ClinicController {
     private final ClinicService clinicService;
 
     @GetMapping
-    public ResponseEntity<List<ClinicResponseDto>> getAll(){
-        return ResponseEntity.ok(clinicService.getAll());
+    public ResponseEntity<Page<ClinicResponseDto>> getAll(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return ResponseEntity.ok(clinicService.getAll(pageable));
     }
 
     @GetMapping("/{slug}")
@@ -44,12 +49,15 @@ public class ClinicController {
     }
 
     @GetMapping("/{slug}/veterinarians")
-    public ResponseEntity<Set<UserEntity>> getDoctors(@PathVariable String slug){
-        return ResponseEntity.ok(clinicService.getDoctors(slug));
+    public ResponseEntity<Page<DoctorResponseDto>> getDoctors(
+            @PathVariable String slug,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return ResponseEntity.ok(clinicService.getDoctors(slug, pageable));
     }
 
     @GetMapping("/{slug}/manager")
-    public ResponseEntity<UserEntity> getManager(@PathVariable String slug){
+    public ResponseEntity<UserDetailsResponseDto> getManager(@PathVariable String slug){
         return ResponseEntity.ok(clinicService.getManager(slug));
     }
 }

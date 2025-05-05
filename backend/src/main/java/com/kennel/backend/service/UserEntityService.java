@@ -14,12 +14,14 @@ import java.util.Optional;
 public class UserEntityService {
     private final UserEntityRepository userEntityRepository;
 
-
     public UserEntity registerUser(UserEntity userEntity){
         return userEntityRepository.save(userEntity);
     }
     public Optional<UserEntity> getUserEntityByEmail(String email) {
         return userEntityRepository.findByEmail(email);
+    }
 
+    public UserEntity saveUser(UserEntity userEntity){
+        return userEntityRepository.save(userEntity);
     }
 }

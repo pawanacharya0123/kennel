@@ -1,21 +1,23 @@
 package com.kennel.backend.entity;
 
+import com.kennel.backend.entity.abstractEntity.SoftDeletableEntity;
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.*;
 
 import java.util.Date;
 import java.util.List;
 
-@Entity
+
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
+@Data
 @Builder(toBuilder = true)
-public class Post {
+@Entity
+@Filter(name = "softDeleteFilter", condition = "deleted = false")
+public class Post extends SoftDeletableEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,6 +30,7 @@ public class Post {
     private UserEntity createdBy;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Filter(name = "softDeleteFilter", condition = "deleted = false")
     private List<Comment> comments;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -16,7 +16,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -189,6 +194,36 @@ public class PostServiceTest {
         assertThrows(ForbiddenActionException.class, () -> {
             postService.deletePost(slug);
         });
+    }
+
+    @Test
+    void shouldReturnPagedPostsForUser() {
+        Long userId = 1L;
+
+        Pageable pageable = PageRequest.of(0, 2);
+
+        UserEntity user = new UserEntity();
+        user.setId(userId);
+        user.setEmail("user1@x.com");
+
+        Post post1 = new Post(); post1.setSlug("first-post");
+        Post post2 = new Post(); post2.setSlug("second-post");
+
+        Page<Post> postPage = new PageImpl<>(List.of(post1, post2), pageable, 2);
+
+        PostResponseDto dto1 = new PostResponseDto("Hello World", "first-post", null);
+        PostResponseDto dto2 = new PostResponseDto("Another Post", "second-post", null);
+        Page<PostResponseDto> dtoPage = new PageImpl<>(List.of(dto1, dto2), pageable, 2);
+
+        when(userEntityRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(authUtility.getCurrentUser()).thenReturn(user); // Assume access is allowed
+        when(postRepository.findByCreatedBy(user, pageable)).thenReturn(postPage);
+        when(postDtoMapper.toDto(postPage)).thenReturn(dtoPage);
+
+        Page<PostResponseDto> result = postService.getPostsByUser(userId, pageable);
+
+        assertEquals(2, result.getContent().size());
+        assertEquals("first-post", result.getContent().get(0).getSlug());
     }
 
 }

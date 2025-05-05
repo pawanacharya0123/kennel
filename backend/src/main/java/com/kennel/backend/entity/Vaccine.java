@@ -1,10 +1,12 @@
 package com.kennel.backend.entity;
 
+import com.kennel.backend.entity.abstractEntity.SoftDeletableEntity;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
@@ -15,7 +17,8 @@ import java.util.Date;
 @Builder
 @Getter
 @Setter
-public class Vaccine {
+@Filter(name = "softDeleteFilter", condition = "deleted = false")
+public class Vaccine extends SoftDeletableEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

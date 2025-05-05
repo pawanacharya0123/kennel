@@ -6,6 +6,7 @@ import com.kennel.backend.dto.kennel.KennelDtoMapper;
 import com.kennel.backend.dto.userEntity.UserEntityDtoMapper;
 import com.kennel.backend.entity.Dog;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -37,8 +38,13 @@ public class DogDtoMapper {
                 .kennel(kennelDtoMapper.toDto(dog.getKennel()))
                 .build();
     }
+
     public List<DogResponseDTO> toDto(List<Dog> dogs){
         return dogs.stream().map(this::toDto).toList();
+    }
+
+    public Page<DogResponseDTO> toDto(Page<Dog> dogs){
+        return dogs.map(this::toDto);
     }
 
 }

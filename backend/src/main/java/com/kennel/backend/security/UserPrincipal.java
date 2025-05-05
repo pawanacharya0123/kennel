@@ -17,6 +17,7 @@ public class UserPrincipal implements UserDetails {
     private final String email;
     @JsonIgnore
     private final String password;
+    private final boolean isVerified;
     private final Collection<? extends  GrantedAuthority> authorities;
 
     @Override
@@ -57,4 +58,9 @@ public class UserPrincipal implements UserDetails {
         return true;
 //        return UserDetails.super.isEnabled();
     }
+
+    public boolean isVerified() {
+        return isVerified;
+    }
+
 }

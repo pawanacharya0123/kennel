@@ -5,10 +5,12 @@ import com.kennel.backend.dto.friend.response.FriendResponseDto;
 import com.kennel.backend.entity.enums.FriendStatus;
 import com.kennel.backend.service.FriendService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/friends")
@@ -27,18 +29,24 @@ public class FriendController {
     }
 
     @GetMapping
-    public ResponseEntity<List<FriendResponseDto>> getFriends(){
-        return ResponseEntity.ok(friendService.getFriends());
+    public ResponseEntity<Page<FriendResponseDto>> getFriends(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return ResponseEntity.ok(friendService.getFriends(pageable));
     }
 
     @GetMapping("/req-sent")
-    public ResponseEntity<List<FriendResponseDto>> getSentRequest(){
-        return ResponseEntity.ok(friendService.getSentPendingRequests());
+    public ResponseEntity<Page<FriendResponseDto>> getSentRequest(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return ResponseEntity.ok(friendService.getSentPendingRequests(pageable));
     }
 
     @GetMapping("/req-received")
-    public ResponseEntity<List<FriendResponseDto>> getPendingRequests(){
-        return ResponseEntity.ok(friendService.getReceivedPendingRequests());
+    public ResponseEntity<Page<FriendResponseDto>> getPendingRequests(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ){
+        return ResponseEntity.ok(friendService.getReceivedPendingRequests(pageable));
     }
 
 

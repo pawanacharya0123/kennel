@@ -16,7 +16,7 @@ import java.util.Set;
 public class UserDetailsResponseDto {
     @NotNull
     private String email;
-    private Set<Role> roles;
+    private Set<String> roles;
     @Nullable
     private String extraInfo;
 }

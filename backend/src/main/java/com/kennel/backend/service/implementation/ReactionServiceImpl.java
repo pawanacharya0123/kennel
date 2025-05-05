@@ -17,6 +17,8 @@ import com.kennel.backend.repository.UserEntityRepository;
 import com.kennel.backend.security.AuthUtility;
 import com.kennel.backend.service.ReactionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -33,13 +35,13 @@ public class ReactionServiceImpl implements ReactionService {
     private final AuthUtility authUtility;
 
     @Override
-    public List<Reaction> getReactionsFromPost(String postSlug) {
-        return reactionRepository.findByPostSlug(postSlug);
+    public Page<ReactionResponseDto> getReactionsFromPost(String postSlug, Pageable pageable) {
+        return reactionMapper.toDto(reactionRepository.findByPostSlug(postSlug, pageable));
     }
 
     @Override
-    public List<Reaction> getReactionsFromComment(String commentSlug) {
-        return reactionRepository.findByCommentSlug(commentSlug);
+    public Page<ReactionResponseDto> getReactionsFromComment(String commentSlug, Pageable pageable) {
+        return reactionMapper.toDto(reactionRepository.findByCommentSlug(commentSlug, pageable));
     }
 
 //    @Override
@@ -62,6 +64,8 @@ public class ReactionServiceImpl implements ReactionService {
 
         Reaction reaction = reactionMapper.toEntity(reactionRequestDto);
         reaction.setPost(post);
+        post.getReactions().add(reaction);
+
         reaction.setCreatedBy(currentAuthUser);
         return reactionMapper.toDto(reactionRepository.save(reaction));
     }
@@ -75,6 +79,8 @@ public class ReactionServiceImpl implements ReactionService {
 
         Reaction reaction = reactionMapper.toEntity(reactionRequestDto);
         reaction.setComment(comment);
+        comment.getReactions().add(reaction);
+
         reaction.setCreatedBy(currentAuthUser);
         return reactionMapper.toDto(reactionRepository.save(reaction));
     }

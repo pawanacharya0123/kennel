@@ -16,6 +16,8 @@ import com.kennel.backend.security.AuthUtility;
 import com.kennel.backend.service.AppointmentService;
 import com.kennel.backend.utility.SlugGenerator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -30,13 +32,13 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final DogRepository dogRepository;
 
     @Override
-    public List<AppointmentResponseDto> getAll() {
+    public Page<AppointmentResponseDto> getAll(Pageable pageable) {
         UserEntity currentAuthUser= authUtility.getCurrentUser();
-        return appointmentDtoMapper.toDto(appointmentRepository.findByOwner(currentAuthUser));
+        return appointmentDtoMapper.toDto(appointmentRepository.findByOwner(currentAuthUser, pageable));
     }
 
     @Override
-    public List<AppointmentResponseDto> getAllAppointmentsByDog(String dogSlug) {
+    public Page<AppointmentResponseDto> getAllAppointmentsByDog(String dogSlug, Pageable pageable) {
         UserEntity currentAuthUser= authUtility.getCurrentUser();
 
         Dog dog = dogRepository.findBySlug(dogSlug)
@@ -46,13 +48,11 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new UnauthorizedAccessException(Dog.class, dogSlug);
         }
 
-        return appointmentDtoMapper.toDto(appointmentRepository.findByDog(dog));
+        return appointmentDtoMapper.toDto(appointmentRepository.findByDog(dog, pageable));
     }
 
     @Override
     public AppointmentResponseDto makeAppointment(AppointmentRequestDto appointmentRequestDto) {
-        UserEntity currentAuthUser= authUtility.getCurrentUser();
-
         Appointment appointment = appointmentDtoMapper.toEntity(appointmentRequestDto);
 
         String initialSlug = SlugGenerator.toSlug(appointment.getDog().getName() + "-" + appointment.getAppointmentTime().toString());

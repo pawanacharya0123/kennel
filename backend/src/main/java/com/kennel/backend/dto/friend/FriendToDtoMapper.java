@@ -8,6 +8,7 @@ import com.kennel.backend.entity.UserEntity;
 import com.kennel.backend.exception.EntityNotFoundException;
 import com.kennel.backend.repository.UserEntityRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -38,5 +39,9 @@ public class FriendToDtoMapper {
 
     public List<FriendResponseDto> toDto(List<Friend> friends){
         return friends.stream().map(this::toDto).toList();
+    }
+
+    public Page<FriendResponseDto> toDto(Page<Friend> friends){
+        return friends.map(this::toDto);
     }
 }

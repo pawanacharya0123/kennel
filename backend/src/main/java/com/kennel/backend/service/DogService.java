@@ -4,6 +4,8 @@ import com.kennel.backend.dto.dog.request.DogCreateRequestDTO;
 import com.kennel.backend.dto.dog.request.DogUpdateRequestDTO;
 import com.kennel.backend.dto.dog.response.DogResponseDTO;
 import com.kennel.backend.entity.Dog;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -13,9 +15,9 @@ public interface DogService {
 
     DogResponseDTO getDogById(Long id);
 
-    List<DogResponseDTO> getDogsByUser(Long userId);
+    Page<DogResponseDTO> getDogsByUser(Long userId, Pageable pageable);
 
-    List<DogResponseDTO> getDogsByKennel(String kennelSlug);
+    Page<DogResponseDTO> getDogsByKennel(String kennelSlug, Pageable pageable);
 
     DogResponseDTO setDogForSale(String slug, Float price);
 

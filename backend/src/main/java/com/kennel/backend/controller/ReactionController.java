@@ -10,6 +10,10 @@ import com.kennel.backend.exception.ForbiddenActionException;
 import com.kennel.backend.service.ReactionService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,13 +28,19 @@ public class ReactionController {
     private final ReactionService reactionService;
 
     @GetMapping("/post/{postSlug}")
-    public ResponseEntity<List<Reaction>> getReactionsFromPost(@PathVariable String postSlug){
-        return ResponseEntity.ok(reactionService.getReactionsFromPost(postSlug));
+    public ResponseEntity<Page<ReactionResponseDto>> getReactionsFromPost(
+            @PathVariable String postSlug,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+            ){
+        return ResponseEntity.ok(reactionService.getReactionsFromPost(postSlug, pageable));
     }
 
     @GetMapping("/comment/{commentSlug}")
-    public ResponseEntity<List<Reaction>> getReactionsFromComment(@PathVariable String commentSlug){
-        return ResponseEntity.ok(reactionService.getReactionsFromComment(commentSlug));
+    public ResponseEntity<Page<ReactionResponseDto>> getReactionsFromComment(
+            @PathVariable String commentSlug,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC)Pageable pageable
+            ){
+        return ResponseEntity.ok(reactionService.getReactionsFromComment(commentSlug, pageable));
     }
 
 

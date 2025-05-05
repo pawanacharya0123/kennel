@@ -1,9 +1,11 @@
 package com.kennel.backend.entity;
 
+import com.kennel.backend.entity.abstractEntity.SoftDeletableEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
@@ -20,7 +22,8 @@ import java.util.List;
             @UniqueConstraint(columnNames = {"name", "location"})
     }
 )
-public class Kennel {
+@Filter(name = "softDeleteFilter", condition = "deleted = false")
+public class Kennel extends SoftDeletableEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,6 +38,7 @@ public class Kennel {
     private Date establishedAt;
 
     @OneToMany(mappedBy = "kennel", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Filter(name = "softDeleteFilter", condition = "deleted = false")
     private List<Dog> dogs;
 
     @ManyToOne

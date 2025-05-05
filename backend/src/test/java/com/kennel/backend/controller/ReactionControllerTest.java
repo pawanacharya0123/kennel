@@ -2,6 +2,7 @@ package com.kennel.backend.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kennel.backend.dto.comment.response.CommentResponseDto;
 import com.kennel.backend.dto.reaction.request.ReactionRequestDto;
 import com.kennel.backend.dto.reaction.response.ReactionResponseDto;
 import com.kennel.backend.dto.userEntity.response.UserDetailsResponseDto;
@@ -22,6 +23,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
@@ -80,43 +84,51 @@ public class ReactionControllerTest {
     @Test
     void shouldGetReactionsFromPost() throws Exception{
 
-        List<Reaction> reactions= List.of(
-                Reaction.builder()
+        List<ReactionResponseDto> reactions= List.of(
+                ReactionResponseDto.builder()
                         .type(ReactionType.LIKE)
-                        .createdBy(new UserEntity("user1@x.com", "xyz"))
+                        .user( UserDetailsResponseDto.builder()
+                                .email("user1@x.com")
+                                .build())
                         .build(),
-                Reaction.builder()
+                ReactionResponseDto.builder()
                         .type(ReactionType.LIKE)
-                        .createdBy(new UserEntity("user2@x.com", "abc"))
+                        .user( UserDetailsResponseDto.builder()
+                                .email("user2@x.com")
+                                .build())
                         .build()
         );
-
-        when(reactionService.getReactionsFromPost("post-slug-1")).thenReturn(reactions);
+        Page<ReactionResponseDto> reactionsPage= new PageImpl<>(reactions);
+        when(reactionService.getReactionsFromPost(eq("post-slug-1"), any(Pageable.class))).thenReturn(reactionsPage);
 
         mockMvc.perform(get("/reactions/post/post-slug-1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(2));
+                .andExpect(jsonPath("$.content.size()").value(2));
     }
 
     @Test
     void shouldGetReactionsFromComment() throws Exception{
 
-        List<Reaction> reactions= List.of(
-                Reaction.builder()
+        List<ReactionResponseDto> reactions= List.of(
+                ReactionResponseDto.builder()
                         .type(ReactionType.LIKE)
-                        .createdBy(new UserEntity("user1@x.com", "xyz"))
+                        .user( UserDetailsResponseDto.builder()
+                                .email("user1@x.com")
+                                .build())
                         .build(),
-                Reaction.builder()
+                ReactionResponseDto.builder()
                         .type(ReactionType.LIKE)
-                        .createdBy(new UserEntity("user2@x.com", "abc"))
+                        .user( UserDetailsResponseDto.builder()
+                                .email("user2@x.com")
+                                .build())
                         .build()
         );
-
-        when(reactionService.getReactionsFromComment("comment-slug-1")).thenReturn(reactions);
+        Page<ReactionResponseDto> reactionsPage= new PageImpl<>(reactions);
+        when(reactionService.getReactionsFromComment(eq("comment-slug-1"), any(Pageable.class))).thenReturn(reactionsPage);
 
         mockMvc.perform(get("/reactions/comment/comment-slug-1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(2));
+                .andExpect(jsonPath("$.content.size()").value(2));
     }
 
     @Test
