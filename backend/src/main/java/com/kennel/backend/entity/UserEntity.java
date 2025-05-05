@@ -63,6 +63,7 @@ public class UserEntity {
     private List<Kennel> kennels;
 
     @OneToOne(mappedBy = "manager", fetch = FetchType.LAZY)
+    @Filter(name = "softDeleteFilter", condition = "deleted = false")
     private Clinic clinic;
 
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -92,9 +93,11 @@ public class UserEntity {
     private List<VaccineRecord> vaccinatedAsDoctor;
 
     @OneToMany(mappedBy = "vaccineCreator")
+    @Filter(name = "softDeleteFilter", condition = "deleted = false")
     private List<Vaccine> vaccines;
 
     @ManyToMany(mappedBy = "doctors")
+    @Filter(name = "softDeleteFilter", condition = "deleted = false")
     private Set<Clinic> clinics= new HashSet<>();
 
     @CreationTimestamp
