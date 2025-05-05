@@ -26,7 +26,10 @@ public class LoginRegisterRateLimitFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String path = request.getRequestURI();
-        if (path.equals("/login") || path.equals("/register")) {
+        if (
+                path.equals("/auth/**")
+//                path.equals("/login") || path.equals("/register")
+        ) {
             String ip = request.getRemoteAddr();
             Bucket bucket = ipBuckets.computeIfAbsent(ip, k -> newBucket());
 

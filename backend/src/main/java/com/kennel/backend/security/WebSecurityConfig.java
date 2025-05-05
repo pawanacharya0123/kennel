@@ -56,14 +56,16 @@ public class WebSecurityConfig {
                 .securityMatcher("/**")
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/register",
-                                "/login",
-                                "/refresh",
-                                "/verify-user",
-                                "/resend-verification-code",
-                                "/forgot",
-                                "/verify-change-token",
-                                "/set-new-password"
+                                "/auth/**"
+//                                ,
+//                                "/register",
+//                                "/login",
+//                                "/refresh",
+//                                "/verify-user",
+//                                "/resend-verification-code",
+//                                "/forgot",
+//                                "/verify-change-token",
+//                                "/set-new-password"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
