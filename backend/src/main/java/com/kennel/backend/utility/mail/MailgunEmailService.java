@@ -20,7 +20,7 @@ public class MailgunEmailService {
     private final MailgunProperties mailgunProperties;
 
 
-    public void sendOtpEmail(String to, long otp) {
+    public void sendOtpEmail(String to, long otp, String purpose) {
         String fromEmail= mailgunProperties.getFromEmail();;
         String domain= mailgunProperties.getDomain();
         String apiKey= mailgunProperties.getApiKey();
@@ -33,7 +33,7 @@ public class MailgunEmailService {
         formData.add("from", fromEmail);
         formData.add("to", to);
         formData.add("subject", "Your OTP Code");
-        formData.add("text", "Your OTP is: " + otp + ". It will expire in 10 minutes.");
+        formData.add("text", "["+ purpose +"]:Your OTP is: " + otp + ". It will expire in 10 minutes.");
 
 //        try {
             webClientBuilder.build()

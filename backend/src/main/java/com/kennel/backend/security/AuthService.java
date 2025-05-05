@@ -9,10 +9,7 @@ import com.kennel.backend.entity.enums.RoleName;
 import com.kennel.backend.exception.InvalidOtpException;
 import com.kennel.backend.repository.ForgetPasswordRepository;
 import com.kennel.backend.repository.OtpVerificationRepository;
-import com.kennel.backend.security.dtos.LoginRequest;
-import com.kennel.backend.security.dtos.LoginResponse;
-import com.kennel.backend.security.dtos.SignupRequest;
-import com.kennel.backend.security.dtos.VerificationRequest;
+import com.kennel.backend.security.dtos.*;
 import com.kennel.backend.service.RoleService;
 import com.kennel.backend.service.UserEntityService;
 import com.kennel.backend.utility.mail.MailgunEmailService;
@@ -43,7 +40,6 @@ public class AuthService {
     private final UserEntityService userEntityService;
 
     private final PasswordEncoder passwordEncoder;
-    private final JwtProperties jwtProperties;
     private final RoleService roleService;
     private final OtpVerificationRepository otpVerificationRepository;
     private final MailgunEmailService mailgunEmailService;
@@ -96,7 +92,12 @@ public class AuthService {
     }
 
     @Transactional
-    public void register(SignupRequest request) {
+    public void register(SignupRequest request) throws BadRequestException {
+
+        if (userEntityService.existsByEmail(request.getEmail())){
+            throw new BadRequestException("UserName already exists.");
+        }
+
         UserEntity userEntity = new UserEntity();
         userEntity.setEmail(request.getEmail());
         userEntity.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -115,7 +116,7 @@ public class AuthService {
         otpVerification.setUser(userEntity);
         userEntity.setOtpVerification(otpVerification);
 
-        mailgunEmailService.sendOtpEmail(userEntity.getEmail(), otp);
+        mailgunEmailService.sendOtpEmail(userEntity.getEmail(), otp, "Registration Token");
 
         userEntityService.registerUser(userEntity);
     }
@@ -162,18 +163,27 @@ public class AuthService {
         otpVerification.setUser(userEntity);
         userEntity.setOtpVerification(otpVerification);
 
-        mailgunEmailService.sendOtpEmail(userEntity.getEmail(), otp);
+        mailgunEmailService.sendOtpEmail(userEntity.getEmail(), otp, "Re-sent Registration Token");
 
         userEntityService.registerUser(userEntity);
     }
 
-    public void forgotPassword(String email) {
+    public void forgotPassword(String email) throws BadRequestException {
         UserEntity userEntity = userEntityService
                 .getUserEntityByEmail(email)
+                //and isVerified=true
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
 
-        long otp = ThreadLocalRandom.current().nextLong(100000, 1000000);
+        if (!userEntity.isVerified()){
+            throw new BadRequestException("User is not verified through email. Try registering it again vai email verification!");
+        }
 
+        if(userEntity.getForgetPassword() != null){
+            forgetPasswordRepository.delete(userEntity.getForgetPassword());
+            userEntity.setForgetPassword(null);
+        }
+
+        long otp = ThreadLocalRandom.current().nextLong(100000, 1000000);
         ForgetPassword forgetPassword = ForgetPassword.builder()
                 .otp(otp)
                 .otpCreatedAt(new Date())
@@ -182,34 +192,62 @@ public class AuthService {
         forgetPassword.setUser(userEntity);
         ForgetPassword savedForgetPassword = forgetPasswordRepository.save(forgetPassword);
         userEntity.setForgetPassword(savedForgetPassword);
+
+        mailgunEmailService.sendOtpEmail(userEntity.getEmail(), otp, "Forgot Password Token");
+
         userEntityService.saveUser(userEntity);
     }
 
-    public void verifyPasswordChangeToken(VerificationRequest request) {
+    public String verifyPasswordChangeToken(VerificationRequest request) throws BadRequestException {
         UserEntity userEntity = userEntityService
                 .getUserEntityByEmail(request.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + request.getEmail()));
 
+        if (!userEntity.isVerified()){
+            throw new BadRequestException("User is not verified through email. Try registering it again vai email verification!");
+        }
+
+        ForgetPassword forgetPassword = userEntity.getForgetPassword();
+
         Date now = new Date();
-        Date createdAt = userEntity.getForgetPassword().getOtpCreatedAt();
+        Date createdAt = forgetPassword.getOtpCreatedAt();
         long diffInMillis = now.getTime() - createdAt.getTime();
         long diffInMinutes = TimeUnit.MILLISECONDS.toMinutes(diffInMillis);
 
-        if (!userEntity.getForgetPassword().getOtp().equals(request.getOtp())
+        if (!forgetPassword.getOtp().equals(request.getOtp())
                 || diffInMinutes > 10) {
             throw new InvalidOtpException("Invalid or expired OTP");
         }
 
-//        userEntity.setVerified(true);
-//        forgetPasswordRepository.delete(userEntity.getForgetPassword());
-//        userEntity.setForgetPassword(null);
-//        userEntityService.saveUser(userEntity);
+        forgetPassword.setUUID(UUID.randomUUID().toString());
+        forgetPassword.setUUIDCreatedAt(new Date());
+
+        forgetPasswordRepository.save(forgetPassword);
+        return forgetPassword.getUUID();
     }
 
-    public void setNewPassword(LoginRequest request) {
+    public void setNewPassword(NewPasswordRequest request) throws BadRequestException {
         UserEntity userEntity = userEntityService
                 .getUserEntityByEmail(request.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + request.getEmail()));
+
+        ForgetPassword forgetPassword = userEntity.getForgetPassword();
+
+        if(forgetPassword == null){
+            throw new BadRequestException("No token assigned to this email. Re-apply for this token!");
+        }
+
+        Date now = new Date();
+        Date createdAt = forgetPassword.getOtpCreatedAt();
+        long diffInMillis = now.getTime() - createdAt.getTime();
+        long diffInMinutes = TimeUnit.MILLISECONDS.toMinutes(diffInMillis);
+
+        if(!forgetPassword.getUUID().equals(request.getPasswordChangeToken()) || diffInMinutes > 10){
+            throw new InvalidOtpException("Invalid or expired OTP");
+        }
+
+        forgetPasswordRepository.delete(forgetPassword);
+        userEntity.setForgetPassword(null);
 
         userEntity.setPassword(passwordEncoder.encode(request.getPassword()));
         userEntity.setVerified(true);

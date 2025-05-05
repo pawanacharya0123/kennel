@@ -7,10 +7,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.kennel.backend.entity.Role;
 import com.kennel.backend.entity.UserEntity;
 import com.kennel.backend.entity.enums.RoleName;
-import com.kennel.backend.security.dtos.LoginRequest;
-import com.kennel.backend.security.dtos.LoginResponse;
-import com.kennel.backend.security.dtos.SignupRequest;
-import com.kennel.backend.security.dtos.VerificationRequest;
+import com.kennel.backend.security.dtos.*;
 import com.kennel.backend.service.RoleService;
 import com.kennel.backend.service.UserEntityService;
 import jakarta.transaction.Transactional;
@@ -23,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,12 +29,6 @@ import java.util.Set;
 public class AuthController {
 
     private final AuthService authService;
-    private final UserEntityService userEntityService;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtProperties jwtProperties;
-    private final JwtIssuer jwtIssuer;
-    private final JwtDecoder jwtDecoder;
-    private final RoleService roleService;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody @Validated LoginRequest request){
@@ -44,7 +36,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody @Validated SignupRequest request){
+    public ResponseEntity<String> register(@RequestBody @Validated SignupRequest request) throws BadRequestException {
         authService.register(request);
 
         return new ResponseEntity<>("User registered successfully and verification token sent to email!", HttpStatus.CREATED);
@@ -69,30 +61,34 @@ public class AuthController {
         return new ResponseEntity<>("User verified successfully!", HttpStatus.ACCEPTED);
     }
 
-    @PatchMapping("/resend-verification-code")
-    public ResponseEntity<?> resendVerificationCode(@RequestParam String email){
-        try {
-            authService.resendVerificationCode(email);
-        } catch (BadRequestException e) {
-            return new ResponseEntity<>("User already verified!", HttpStatus.OK);
-        }
+    @PostMapping("/resend-verification-code")
+    public ResponseEntity<?> resendVerificationCode(@RequestBody Map<String, String> request) throws BadRequestException {
+        String email = request.get("email");
+        authService.resendVerificationCode(email);
+
         return new ResponseEntity<>("User verified code re-sent to email successfully!", HttpStatus.OK);
     }
 
-    @PatchMapping("/forgot")
-    public ResponseEntity<?> forgotPassword(@RequestParam String email){
+    @PostMapping("/forgot")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) throws BadRequestException {
+        String email = request.get("email");
         authService.forgotPassword(email);
         return new ResponseEntity<>("User verified code re-sent to email successfully!", HttpStatus.OK);
     }
 
-    @PutMapping("/verify-change-token")
-    public ResponseEntity<?> verifyPasswordChangeToken(@RequestBody VerificationRequest request){
-        authService.verifyPasswordChangeToken(request);
-        return new ResponseEntity<>("User verified code verified successfully for password change!", HttpStatus.OK);
+    @PostMapping("/verify-change-token")
+    public ResponseEntity<?> verifyPasswordChangeToken(@RequestBody VerificationRequest request) throws BadRequestException {
+        String verifyPasswordChangeUUID = null;
+
+        verifyPasswordChangeUUID = authService.verifyPasswordChangeToken(request);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("token", verifyPasswordChangeUUID);
+        return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/set-password")
-    public ResponseEntity<?> setNewPassword(@RequestBody @Validated LoginRequest request){
+    @PatchMapping("/set-new-password")
+    public ResponseEntity<?> setNewPassword(@RequestBody @Validated NewPasswordRequest request) throws BadRequestException {
         authService.setNewPassword(request);
         return new ResponseEntity<>("User verified code re-sent to email successfully!", HttpStatus.OK);
     }

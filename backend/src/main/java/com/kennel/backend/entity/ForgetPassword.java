@@ -1,5 +1,6 @@
 package com.kennel.backend.entity;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -28,4 +29,11 @@ public class ForgetPassword {
 
     @OneToOne(mappedBy = "forgetPassword", fetch = FetchType.LAZY)
     private UserEntity user;
+
+    @Nullable
+    private String UUID;
+
+    @Nullable
+    private Date UUIDCreatedAt;
+
 }

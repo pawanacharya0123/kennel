@@ -63,7 +63,7 @@ public class WebSecurityConfig {
                                 "/resend-verification-code",
                                 "/forgot",
                                 "/verify-change-token",
-                                "/set-password"
+                                "/set-new-password"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()

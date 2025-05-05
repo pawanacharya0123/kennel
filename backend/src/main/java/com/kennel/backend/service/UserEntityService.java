@@ -24,4 +24,9 @@ public class UserEntityService {
     public UserEntity saveUser(UserEntity userEntity){
         return userEntityRepository.save(userEntity);
     }
+
+    public Boolean existsByEmail(String email){
+        return userEntityRepository.existsByEmail(email);
+    }
+
 }
