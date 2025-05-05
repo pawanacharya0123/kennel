@@ -56,7 +56,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         Appointment appointment = appointmentDtoMapper.toEntity(appointmentRequestDto);
 
         String initialSlug = SlugGenerator.toSlug(appointment.getDog().getName() + "-" + appointment.getAppointmentTime().toString());
-        String finalSlug = ensureUniqueDogSlug(initialSlug);
+        String finalSlug = ensureUniqueAppointmentSlug(initialSlug);
 
         appointment.setSlug(finalSlug);
 
@@ -101,7 +101,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
 
-    private String ensureUniqueDogSlug(String baseSlug) {
+    private String ensureUniqueAppointmentSlug(String baseSlug) {
         String slug = baseSlug;
         int counter = 1;
         while (appointmentRepository.existsBySlug(slug)) {

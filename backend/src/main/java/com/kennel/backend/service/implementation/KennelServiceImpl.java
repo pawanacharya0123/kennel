@@ -41,7 +41,7 @@ public class KennelServiceImpl implements KennelService {
         validateKennelNameUnique(kennel.getName(), kennel.getLocation());
 
         String initialSlug = SlugGenerator.toSlug(kennel.getName() + "-" + kennel.getLocation());
-        String finalSlug = ensureUniqueDogSlug(initialSlug);
+        String finalSlug = ensureUniqueKennelSlug(initialSlug);
 
         kennel.setOwner(currentAuthUser);
         kennel.setSlug(finalSlug);
@@ -119,7 +119,7 @@ public class KennelServiceImpl implements KennelService {
         }
     }
 
-    private String ensureUniqueDogSlug(String baseSlug) {
+    private String ensureUniqueKennelSlug(String baseSlug) {
         String slug = baseSlug;
         int counter = 1;
         while (kennelRepository.existsBySlug(slug)) {

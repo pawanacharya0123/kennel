@@ -9,6 +9,7 @@ import com.kennel.backend.entity.Vaccine;
 import com.kennel.backend.entity.enums.RoleName;
 import com.kennel.backend.exception.EntityNotFoundException;
 import com.kennel.backend.exception.ForbiddenActionException;
+import com.kennel.backend.protection.customAnnotation.EnableSoftDeleteFilter;
 import com.kennel.backend.repository.VaccineRepository;
 import com.kennel.backend.security.AuthUtility;
 import com.kennel.backend.service.VaccineService;
@@ -29,6 +30,7 @@ public class VaccineServiceImpl implements VaccineService {
     private final AuthUtility authUtility;
 
     @Override
+    @EnableSoftDeleteFilter
     public Page<VaccineResponseDto> getAll(Pageable pageable) {
         return vaccineDtoMapper.toDto(vaccineRepository.findAll(pageable));
     }
@@ -43,7 +45,7 @@ public class VaccineServiceImpl implements VaccineService {
         }
 
         String initialSlug = SlugGenerator.toSlug(vaccine.getName() + "-" + vaccine.getDescription().substring(0,5));
-        String finalSlug = ensureUniqueDogSlug(initialSlug);
+        String finalSlug = ensureUniqueVaccineSlug(initialSlug);
 
         vaccine.setSlug(finalSlug);
         vaccine.setVaccineCreator(currentAuthUser);
@@ -52,6 +54,7 @@ public class VaccineServiceImpl implements VaccineService {
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public VaccineResponseDto update(String slug, VaccineRequestDto vaccineRequestDto) {
 
         Vaccine vaccine= vaccineRepository.findBySlug(slug)
@@ -70,7 +73,8 @@ public class VaccineServiceImpl implements VaccineService {
         return vaccineDtoMapper.toDto(vaccineRepository.save(vaccine));
     }
 
-    private String ensureUniqueDogSlug(String baseSlug) {
+    @EnableSoftDeleteFilter
+    private String ensureUniqueVaccineSlug(String baseSlug) {
         String slug = baseSlug;
         int counter = 1;
         while (vaccineRepository.existsBySlug(slug)) {

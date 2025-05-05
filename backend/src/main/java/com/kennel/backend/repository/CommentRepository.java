@@ -18,4 +18,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     Page<Comment> findByPostSlugAndDeletedFalse(String postSlug, Pageable pageable);
 
     Optional<Comment> findBySlugAndDeletedFalse(String slug);
+
+    boolean existsBySlug(String slug);
 }

@@ -24,9 +24,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.AccessDeniedException;
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
@@ -46,7 +43,8 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @EnableSoftDeleteFilter
     public CommentResponseDto addCommentToPost(CommentRequestDto commentRequestDto, String postSlug) {
-        Post post = postRepository.findBySlugAndDeletedFalse(postSlug)
+        Post post = postRepository.findBySlug(postSlug)
+//                .findBySlugAndDeletedFalse(postSlug)
                 .orElseThrow(() -> new EntityNotFoundException(Post.class, "slug", postSlug));
 
         UserEntity currentAuthUser = authUtility.getCurrentUser();
@@ -66,7 +64,7 @@ public class CommentServiceImpl implements CommentService {
         post.getComments().add(comment);
 
         String initialSlug = SlugGenerator.toSlug( comment.getContent().substring(0,10));
-        String finalSlug = ensureUniqueDogSlug(initialSlug);
+        String finalSlug = ensureUniqueCommentSlug(initialSlug);
 
         comment.setSlug(finalSlug);
         comment.setCreatedBy(currentAuthUser);
@@ -76,8 +74,10 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public CommentResponseDto updateComment(CommentRequestDto commentRequestDto, String slug) {
-        Comment comment = commentRepository.findBySlugAndDeletedFalse(slug)
+        Comment comment = commentRepository.findBySlug(slug)
+//                .findBySlugAndDeletedFalse(slug)
                 .orElseThrow(() -> new EntityNotFoundException(Comment.class, "slug", slug));
 
         checkAccess(comment);
@@ -99,14 +99,15 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public void deleteComment(String slug) {
-        Comment comment = commentRepository.findBySlugAndDeletedFalse(slug)
+        Comment comment = commentRepository.findBySlug(slug)
+//                .findBySlugAndDeletedFalse(slug)
                 .orElseThrow(() -> new EntityNotFoundException(Comment.class, "slug", slug));
 
         checkAccess(comment);
         comment.setDeleted(true);
         commentRepository.save(comment);
-//        commentRepository.delete(comment);
     }
 
     private void checkAccess(Comment comment){
@@ -116,10 +117,11 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
-    private String ensureUniqueDogSlug(String baseSlug) {
+    @EnableSoftDeleteFilter
+    private String ensureUniqueCommentSlug(String baseSlug) {
         String slug = baseSlug;
         int counter = 1;
-        while (postRepository.existsBySlug(slug)) {
+        while (commentRepository.existsBySlug(slug)) {
             slug = baseSlug + "-" + counter;
             counter++;
         }

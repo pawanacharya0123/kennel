@@ -11,6 +11,7 @@ import com.kennel.backend.entity.Clinic;
 import com.kennel.backend.entity.UserEntity;
 import com.kennel.backend.exception.EntityNotFoundException;
 import com.kennel.backend.exception.UnauthorizedAccessException;
+import com.kennel.backend.protection.customAnnotation.EnableSoftDeleteFilter;
 import com.kennel.backend.repository.ClinicRepository;
 import com.kennel.backend.repository.UserEntityRepository;
 import com.kennel.backend.security.AuthUtility;
@@ -36,13 +37,19 @@ public class ClinicServiceImpl implements ClinicService {
     private final DoctorDtoMapper doctorDtoMapper;
 
     @Override
+    @EnableSoftDeleteFilter
     public Page<ClinicResponseDto> getAll(Pageable pageable) {
-        return clinicDtoMapper.toDto(clinicRepository.findByDeletedFalse(pageable));
+        return clinicDtoMapper.toDto(
+                clinicRepository.findAll(pageable)
+//                        .findByDeletedFalse(pageable)
+        );
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public ClinicResponseDto getClinicBySlug(String slug) {
-        Clinic clinic = clinicRepository.findBySlugAndDeletedFalse(slug)
+        Clinic clinic = clinicRepository.findBySlug(slug)
+//                .findBySlugAndDeletedFalse(slug)
                 .orElseThrow(() -> new EntityNotFoundException(Clinic.class, "slug", slug));
         return clinicDtoMapper.toDto(clinic);
     }
@@ -57,7 +64,7 @@ public class ClinicServiceImpl implements ClinicService {
         validateClinicNameUnique(clinic.getName(), clinic.getAddress());
 
         String initialSlug = SlugGenerator.toSlug(clinic.getName() + "-" + clinic.getAddress());
-        String finalSlug = ensureUniqueDogSlug(initialSlug);
+        String finalSlug = ensureUniqueClinicSlug(initialSlug);
 
         clinic.setSlug(finalSlug);
         clinic.setManager(currentAuthUser);
@@ -66,8 +73,10 @@ public class ClinicServiceImpl implements ClinicService {
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public ClinicResponseDto updateClinic(String slug, ClinicRequestDto clinicRequestDto){
-        Clinic clinic = clinicRepository.findBySlugAndDeletedFalse(slug)
+        Clinic clinic = clinicRepository.findBySlug(slug)
+//                .findBySlugAndDeletedFalse(slug)
                 .orElseThrow(() -> new EntityNotFoundException(Clinic.class, "slug", slug));
 
         Clinic clinicRequest = clinicDtoMapper.toEntity(clinicRequestDto);
@@ -87,8 +96,10 @@ public class ClinicServiceImpl implements ClinicService {
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public Page<DoctorResponseDto> getDoctors(String slug, Pageable pageable) {
-        Clinic clinic = clinicRepository.findBySlugAndDeletedFalse(slug)
+        Clinic clinic = clinicRepository.findBySlug(slug)
+//                .findBySlugAndDeletedFalse(slug)
                 .orElseThrow(() -> new EntityNotFoundException(Clinic.class, "slug", slug));
 
         return doctorDtoMapper.toDto(
@@ -97,15 +108,19 @@ public class ClinicServiceImpl implements ClinicService {
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public UserDetailsResponseDto getManager(String slug) {
-        Clinic clinic = clinicRepository.findBySlugAndDeletedFalse(slug)
+        Clinic clinic = clinicRepository.findBySlug(slug)
+//                .findBySlugAndDeletedFalse(slug)
                 .orElseThrow(() -> new EntityNotFoundException(Clinic.class, "slug", slug));
         return userEntityDtoMapper.toDto(clinic.getManager());
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public ClinicResponseDto changeManager(String slug, Long userId){
-        Clinic clinic = clinicRepository.findBySlugAndDeletedFalse(slug)
+        Clinic clinic = clinicRepository.findBySlug(slug)
+//                .findBySlugAndDeletedFalse(slug)
                 .orElseThrow(() -> new EntityNotFoundException(Clinic.class, "slug", slug));
 
         UserEntity currentAuthUser =authUtility.getCurrentUser();
@@ -120,6 +135,7 @@ public class ClinicServiceImpl implements ClinicService {
         return clinicDtoMapper.toDto(clinicRepository.save(clinic));
     }
 
+    @EnableSoftDeleteFilter
     private void validateClinicNameUnique(String name, String address){
         boolean exists = clinicRepository.existsByNameAndAddress(name, address);
         if (exists) {
@@ -127,7 +143,8 @@ public class ClinicServiceImpl implements ClinicService {
         }
     }
 
-    private String ensureUniqueDogSlug(String baseSlug) {
+    @EnableSoftDeleteFilter
+    private String ensureUniqueClinicSlug(String baseSlug) {
         String slug = baseSlug;
         int counter = 1;
         while (clinicRepository.existsBySlug(slug)) {

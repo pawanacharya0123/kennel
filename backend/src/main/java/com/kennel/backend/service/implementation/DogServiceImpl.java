@@ -10,6 +10,7 @@ import com.kennel.backend.entity.Kennel;
 import com.kennel.backend.entity.UserEntity;
 import com.kennel.backend.exception.EntityNotFoundException;
 import com.kennel.backend.exception.ForbiddenActionException;
+import com.kennel.backend.protection.customAnnotation.EnableSoftDeleteFilter;
 import com.kennel.backend.repository.DogRepository;
 import com.kennel.backend.repository.UserEntityRepository;
 import com.kennel.backend.service.DogService;
@@ -51,6 +52,7 @@ public class DogServiceImpl implements DogService {
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public DogResponseDTO getDogById(Long id) {
         Dog dog= dogRepository.findById(id)
                 .orElseThrow(()-> new EntityNotFoundException(Dog.class, "id", id));
@@ -58,18 +60,21 @@ public class DogServiceImpl implements DogService {
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public Page<DogResponseDTO> getDogsByUser(Long userId, Pageable pageable) {
         Page<Dog> dogs= dogRepository.findByOwnerId(userId, pageable);
         return dogDtoMapper.toDto(dogs);
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public Page<DogResponseDTO> getDogsByKennel(String kennelSlug, Pageable pageable) {
         Page<Dog> dogs= dogRepository.findByKennelSlug(kennelSlug, pageable);
         return dogDtoMapper.toDto(dogs);
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public DogResponseDTO setDogForSale(String slug, Float price) {
         Dog dog= dogRepository.findBySlug(slug)
                 .orElseThrow(()-> new EntityNotFoundException(Dog.class, "slug", slug));
@@ -83,6 +88,7 @@ public class DogServiceImpl implements DogService {
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public DogResponseDTO updateDog(String slug, DogUpdateRequestDTO dogUpdateRequestDTO) {
         Dog dog = dogRepository.findBySlug(slug)
                 .orElseThrow(()-> new EntityNotFoundException(Dog.class, "slug", slug));
@@ -104,6 +110,7 @@ public class DogServiceImpl implements DogService {
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public void deleteDog(String slug) {
         Dog dog = dogRepository.findBySlug(slug)
                 .orElseThrow(()-> new EntityNotFoundException(Dog.class, "slug", slug));
@@ -114,6 +121,7 @@ public class DogServiceImpl implements DogService {
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public DogResponseDTO getDogBySlug(String slug) {
         Dog dog= dogRepository.findBySlug(slug)
                 .orElseThrow(()-> new EntityNotFoundException(Dog.class, "slug", slug));
@@ -127,6 +135,7 @@ public class DogServiceImpl implements DogService {
         }
     }
 
+    @EnableSoftDeleteFilter
     private void validateDogNameUnique(String name, Long ownerId){
         boolean exists = dogRepository.existsByNameAndOwnerId(name, ownerId);
         if (exists) {
@@ -134,6 +143,7 @@ public class DogServiceImpl implements DogService {
         }
     }
 
+    @EnableSoftDeleteFilter
     private String ensureUniqueDogSlug(String baseSlug) {
         String slug = baseSlug;
         int counter = 1;

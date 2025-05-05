@@ -21,10 +21,8 @@ import com.kennel.backend.utility.SlugGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -45,8 +43,10 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public PostResponseDto getPostById(Long id) {
-        Post post = postRepository.findByIdAndDeletedFalse(id)
+        Post post = postRepository.findById(id)
+//                .findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new EntityNotFoundException(Post.class, "id", id));
 
         UserEntity currentAuthUser = authUtility.getCurrentUser();
@@ -65,8 +65,11 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public PostResponseDto getPostBySlug(String slug) {
-        Post post = postRepository.findBySlugAndDeletedFalse(slug)
+        Post post = postRepository
+                .findBySlug(slug)
+//                .findBySlugAndDeletedFalse(slug)
                 .orElseThrow(() -> new EntityNotFoundException(Post.class, "slug", slug));
 
         UserEntity currentAuthUser = authUtility.getCurrentUser();
@@ -85,6 +88,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public Page<PostResponseDto> getPostsByUser(Long userId, Pageable pageable) {
         UserEntity userEntity = userEntityRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(UserEntity.class, "id", userId));
@@ -99,13 +103,17 @@ public class PostServiceImpl implements PostService {
             throw new UnauthorizedAccessException(Post.class, currentAuthUser.getId());
         }
 
-        Page<Post> posts = postRepository.findByCreatedByAndDeletedFalse(userEntity, pageable);
+        Page<Post> posts = postRepository.findByCreatedBy(userEntity, pageable);
+//                .findByCreatedByAndDeletedFalse(userEntity, pageable);
         return postDtoMapper.toDto(posts);
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public void deletePost(String slug) {
-        Post post = postRepository.findBySlugAndDeletedFalse(slug)
+        Post post = postRepository
+                .findBySlug(slug)
+//                .findBySlugAndDeletedFalse(slug)
                 .orElseThrow(() -> new EntityNotFoundException(Post.class, "slug", slug));
 
         checkAccess(post);
@@ -122,7 +130,7 @@ public class PostServiceImpl implements PostService {
         post.setCreatedBy(currentAuthUser);
 
         String initialSlug = SlugGenerator.toSlug( post.getContent().substring(0,10));
-        String finalSlug = ensureUniqueDogSlug(initialSlug);
+        String finalSlug = ensureUniquePostSlug(initialSlug);
 
         post.setSlug(finalSlug);
         post.setDeleted(false);
@@ -131,8 +139,10 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @EnableSoftDeleteFilter
     public PostResponseDto updatePost(String slug, PostRequestDto postRequestDto) {
-        Post post = postRepository.findBySlugAndDeletedFalse(slug)
+        Post post = postRepository.findBySlug(slug)
+//                .findBySlugAndDeletedFalse(slug)
                 .orElseThrow(() -> new EntityNotFoundException(Post.class, "slug", slug));
 
         checkAccess(post);
@@ -153,7 +163,8 @@ public class PostServiceImpl implements PostService {
         }
     }
 
-    private String ensureUniqueDogSlug(String baseSlug) {
+    @EnableSoftDeleteFilter
+    private String ensureUniquePostSlug(String baseSlug) {
         String slug = baseSlug;
         int counter = 1;
         while (postRepository.existsBySlug(slug)) {
