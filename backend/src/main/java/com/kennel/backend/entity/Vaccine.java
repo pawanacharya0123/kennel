@@ -1,6 +1,7 @@
 package com.kennel.backend.entity;
 
 import com.kennel.backend.entity.abstractEntity.SoftDeletableEntity;
+import com.kennel.backend.protection.customAnnotation.UniqueUserEmail;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -24,6 +25,7 @@ public class Vaccine extends SoftDeletableEntity {
     private Long id;
 
     @NotNull
+    @Column(unique = true)
     private String name;
 
     private String description;

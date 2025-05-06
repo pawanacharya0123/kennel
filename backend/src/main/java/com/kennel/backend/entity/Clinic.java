@@ -19,6 +19,12 @@ import java.util.Set;
 @Builder
 @Getter
 @Setter
+@Table(
+        name = "clinics",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"name", "address"})
+        }
+)
 @Filter(name = "softDeleteFilter", condition = "deleted = false")
 public class Clinic extends SoftDeletableEntity {
     @Id
@@ -64,4 +70,12 @@ public class Clinic extends SoftDeletableEntity {
 
     @Column(unique = true)
     private String slug;
+
+//    @PrePersist
+//    @PreUpdate
+//    private void validateForSaleAndPrice() {
+//        if (Boolean.TRUE.equals(isForSale) && (price == null || price < 0)) {
+//            throw new IllegalStateException("Price must be set if dog is for sale.");
+//        }
+//    }
 }
