@@ -33,6 +33,7 @@ public class PostServiceImpl implements PostService {
     private final AuthUtility authUtility;
     private final FriendRepository friendRepository;
     private final FollowerRepository followerRepository;
+    private final SlugGenerator slugGenerator;
 
     @Override
     @EnableSoftDeleteFilter
@@ -129,8 +130,11 @@ public class PostServiceImpl implements PostService {
         Post post = postDtoMapper.toEntity(postRequestDto);
         post.setCreatedBy(currentAuthUser);
 
-        String initialSlug = SlugGenerator.toSlug( post.getContent().substring(0,10));
-        String finalSlug = ensureUniquePostSlug(initialSlug);
+//        String initialSlug = SlugGenerator.toSlug( post.getContent().substring(0,10));
+//        String finalSlug = ensureUniquePostSlug(initialSlug);
+
+        String base= post.getContent().substring(0,10);
+        String finalSlug =slugGenerator.ensureUniqueSlug(base, postRepository);
 
         post.setSlug(finalSlug);
         post.setDeleted(false);
@@ -163,16 +167,15 @@ public class PostServiceImpl implements PostService {
         }
     }
 
-    @EnableSoftDeleteFilter
-    private String ensureUniquePostSlug(String baseSlug) {
-        String slug = baseSlug;
-        int counter = 1;
-        while (postRepository.existsBySlug(slug)) {
-            slug = baseSlug + "-" + counter;
-            counter++;
-        }
-        return slug;
-    }
+//    private String ensureUniquePostSlug(String baseSlug) {
+//        String slug = baseSlug;
+//        int counter = 1;
+//        while (postRepository.existsBySlug(slug)) {
+//            slug = baseSlug + "-" + counter;
+//            counter++;
+//        }
+//        return slug;
+//    }
 
     private Boolean isFollowing(UserEntity currentAuthUser, UserEntity userEntity){
         return  followerRepository.existsByFollowerAndFollowing(currentAuthUser, userEntity);

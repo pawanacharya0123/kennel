@@ -5,6 +5,7 @@ import com.kennel.backend.dto.vetVisit.request.VetVisitRequestDto;
 import com.kennel.backend.dto.vetVisit.response.VetVisitResponseDto;
 import com.kennel.backend.entity.VetVisit;
 import com.kennel.backend.service.VetVisitService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,7 +43,7 @@ public class VetVisitController {
     }
 
     @PostMapping
-    public ResponseEntity<VetVisitResponseDto> createVetVisit(@RequestBody VetVisitRequestDto vetVisitRequestDto){
+    public ResponseEntity<VetVisitResponseDto> createVetVisit(@RequestBody @Valid VetVisitRequestDto vetVisitRequestDto){
         return ResponseEntity.ok(vetVisitService.createVetVisit(vetVisitRequestDto));
     }
 

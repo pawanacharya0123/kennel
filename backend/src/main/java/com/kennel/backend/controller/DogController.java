@@ -5,6 +5,7 @@ import com.kennel.backend.dto.dog.request.DogUpdateRequestDTO;
 import com.kennel.backend.dto.dog.response.DogResponseDTO;
 import com.kennel.backend.entity.Dog;
 import com.kennel.backend.service.DogService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +23,7 @@ public class DogController {
     private DogService dogService;
 
     @PostMapping
-    public ResponseEntity<DogResponseDTO>  createDog(@RequestBody DogCreateRequestDTO dogCreateRequestDTO){
+    public ResponseEntity<DogResponseDTO>  createDog(@RequestBody @Valid DogCreateRequestDTO dogCreateRequestDTO){
         return ResponseEntity.ok(dogService.createDog(dogCreateRequestDTO));
     }
 
@@ -60,7 +61,7 @@ public class DogController {
 
     @PreAuthorize("@dogSecurity.isOwner(#slug, authentication.name)")
     @PutMapping("/{slug}")
-    public ResponseEntity<DogResponseDTO> updateDog(@PathVariable String slug, @RequestBody DogUpdateRequestDTO dogUpdateRequestDTO){
+    public ResponseEntity<DogResponseDTO> updateDog(@PathVariable String slug, @RequestBody @Valid DogUpdateRequestDTO dogUpdateRequestDTO){
         return ResponseEntity.ok(dogService.updateDog(slug, dogUpdateRequestDTO));
     }
 

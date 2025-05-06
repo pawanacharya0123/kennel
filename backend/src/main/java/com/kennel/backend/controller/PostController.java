@@ -8,6 +8,7 @@ import com.kennel.backend.entity.Post;
 import com.kennel.backend.entity.Reaction;
 import com.kennel.backend.entity.UserEntity;
 import com.kennel.backend.service.PostService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -58,13 +59,13 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<PostResponseDto> createPost(@RequestBody PostRequestDto postRequestDto){
+    public ResponseEntity<PostResponseDto> createPost(@RequestBody @Valid PostRequestDto postRequestDto){
         return ResponseEntity.ok(postService.createPost(postRequestDto));
     }
 
     @PreAuthorize("@postSecurity.isOwner(#slug, authentication.name)")
     @PutMapping("/{slug}")
-    public ResponseEntity<PostResponseDto> updatePost(@RequestBody PostRequestDto postRequestDto, @PathVariable String slug){
+    public ResponseEntity<PostResponseDto> updatePost(@RequestBody @Valid PostRequestDto postRequestDto, @PathVariable String slug){
         return ResponseEntity.ok(postService.updatePost(slug, postRequestDto));
     }
 }

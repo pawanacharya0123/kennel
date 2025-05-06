@@ -7,6 +7,7 @@ import com.kennel.backend.dto.userEntity.response.UserDetailsResponseDto;
 import com.kennel.backend.entity.Clinic;
 import com.kennel.backend.entity.UserEntity;
 import com.kennel.backend.service.ClinicService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,12 +35,12 @@ public class ClinicController {
     }
 
     @PostMapping
-    public ResponseEntity<ClinicResponseDto> createClinic(@RequestBody ClinicRequestDto clinicRequestDto){
+    public ResponseEntity<ClinicResponseDto> createClinic(@RequestBody @Valid ClinicRequestDto clinicRequestDto){
         return ResponseEntity.ok(clinicService.createClinic(clinicRequestDto));
     }
 
     @PutMapping("/{slug}")
-    public ResponseEntity<ClinicResponseDto> createClinic(@PathVariable String slug, @RequestBody ClinicRequestDto clinicRequestDto){
+    public ResponseEntity<ClinicResponseDto> createClinic(@PathVariable String slug, @RequestBody @Valid ClinicRequestDto clinicRequestDto){
         return ResponseEntity.ok(clinicService.updateClinic(slug, clinicRequestDto));
     }
 

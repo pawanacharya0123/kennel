@@ -13,16 +13,12 @@ public class AppointmentRequestDto {
     @NotNull
     private Date appointmentTime;
     @NotNull
-    @NotBlank
     private AppointmentStatus status;
-    @NotNull
     @NotBlank
     private String dog;
-    @NotNull
     @NotBlank
     private String clinic;
     @NotNull
-    @NotBlank
     private Long doctor;
     private String note;
 }

@@ -11,6 +11,7 @@ import com.kennel.backend.security.dtos.*;
 import com.kennel.backend.service.RoleService;
 import com.kennel.backend.service.UserEntityService;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
@@ -32,12 +33,12 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody @Validated LoginRequest request){
+    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request){
         return ResponseEntity.ok(authService.attemptLogin(request.getEmail(), request.getPassword()));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody @Validated SignupRequest request) throws BadRequestException {
+    public ResponseEntity<String> register(@RequestBody @Valid SignupRequest request) throws BadRequestException {
         authService.register(request);
 
         return new ResponseEntity<>("User registered successfully and verification token sent to email!", HttpStatus.CREATED);
@@ -57,7 +58,7 @@ public class AuthController {
     }
 
     @PostMapping("/verify-user")
-    public ResponseEntity<?> verifyEmail(@RequestBody VerificationRequest request) {
+    public ResponseEntity<?> verifyEmail(@RequestBody @Valid VerificationRequest request) {
         authService.verifyEmail(request);
         return new ResponseEntity<>("User verified successfully!", HttpStatus.ACCEPTED);
     }
@@ -78,7 +79,7 @@ public class AuthController {
     }
 
     @PostMapping("/verify-change-token")
-    public ResponseEntity<?> verifyPasswordChangeToken(@RequestBody VerificationRequest request) throws BadRequestException {
+    public ResponseEntity<?> verifyPasswordChangeToken(@RequestBody @Valid VerificationRequest request) throws BadRequestException {
         String verifyPasswordChangeUUID = null;
 
         verifyPasswordChangeUUID = authService.verifyPasswordChangeToken(request);
@@ -89,7 +90,7 @@ public class AuthController {
     }
 
     @PatchMapping("/set-new-password")
-    public ResponseEntity<?> setNewPassword(@RequestBody @Validated NewPasswordRequest request) throws BadRequestException {
+    public ResponseEntity<?> setNewPassword(@RequestBody @Valid NewPasswordRequest request) throws BadRequestException {
         authService.setNewPassword(request);
         return new ResponseEntity<>("User verified code re-sent to email successfully!", HttpStatus.OK);
     }

@@ -35,6 +35,7 @@ public class ClinicServiceImpl implements ClinicService {
     private final UserEntityRepository userEntityRepository;
     private final UserEntityDtoMapper userEntityDtoMapper;
     private final DoctorDtoMapper doctorDtoMapper;
+    private final SlugGenerator slugGenerator;
 
     @Override
     @EnableSoftDeleteFilter
@@ -63,8 +64,11 @@ public class ClinicServiceImpl implements ClinicService {
 
         validateClinicNameUnique(clinic.getName(), clinic.getAddress());
 
-        String initialSlug = SlugGenerator.toSlug(clinic.getName() + "-" + clinic.getAddress());
-        String finalSlug = ensureUniqueClinicSlug(initialSlug);
+//        String initialSlug = SlugGenerator.toSlug(clinic.getName() + "-" + clinic.getAddress());
+//        String finalSlug = ensureUniqueClinicSlug(initialSlug);
+
+        String base= clinic.getName() + "-" + clinic.getAddress();
+        String finalSlug =slugGenerator.ensureUniqueSlug(base, clinicRepository);
 
         clinic.setSlug(finalSlug);
         clinic.setManager(currentAuthUser);
@@ -135,7 +139,6 @@ public class ClinicServiceImpl implements ClinicService {
         return clinicDtoMapper.toDto(clinicRepository.save(clinic));
     }
 
-    @EnableSoftDeleteFilter
     private void validateClinicNameUnique(String name, String address){
         boolean exists = clinicRepository.existsByNameAndAddress(name, address);
         if (exists) {
@@ -143,14 +146,14 @@ public class ClinicServiceImpl implements ClinicService {
         }
     }
 
-    @EnableSoftDeleteFilter
-    private String ensureUniqueClinicSlug(String baseSlug) {
-        String slug = baseSlug;
-        int counter = 1;
-        while (clinicRepository.existsBySlug(slug)) {
-            slug = baseSlug + "-" + counter;
-            counter++;
-        }
-        return slug;
-    }
+//    @EnableSoftDeleteFilter
+//    private String ensureUniqueClinicSlug(String baseSlug) {
+//        String slug = baseSlug;
+//        int counter = 1;
+//        while (clinicRepository.existsBySlug(slug)) {
+//            slug = baseSlug + "-" + counter;
+//            counter++;
+//        }
+//        return slug;
+//    }
 }

@@ -8,7 +8,6 @@ import lombok.Getter;
 
 @Getter
 public class VaccineRequestDto {
-    @NotNull
     @NotBlank
     @UniqueVaccineName
     private String name;

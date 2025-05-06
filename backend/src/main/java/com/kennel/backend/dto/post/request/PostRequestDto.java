@@ -10,7 +10,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class PostRequestDto {
-    @NotNull
     @NotBlank
     private String content;
 }

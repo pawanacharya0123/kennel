@@ -28,6 +28,7 @@ public class VaccineServiceImpl implements VaccineService {
     private final VaccineRepository vaccineRepository;
     private final VaccineDtoMapper vaccineDtoMapper;
     private final AuthUtility authUtility;
+    private final SlugGenerator slugGenerator;
 
     @Override
     @EnableSoftDeleteFilter
@@ -44,8 +45,11 @@ public class VaccineServiceImpl implements VaccineService {
             throw new ForbiddenActionException(Vaccine.class);
         }
 
-        String initialSlug = SlugGenerator.toSlug(vaccine.getName() + "-" + vaccine.getDescription().substring(0,5));
-        String finalSlug = ensureUniqueVaccineSlug(initialSlug);
+//        String initialSlug = SlugGenerator.toSlug(vaccine.getName() + "-" + vaccine.getDescription().substring(0,5));
+//        String finalSlug = ensureUniqueVaccineSlug(initialSlug);
+
+        String base= vaccine.getName() + "-" + vaccine.getDescription().substring(0,5);
+        String finalSlug= slugGenerator.ensureUniqueSlug(base, vaccineRepository);
 
         vaccine.setSlug(finalSlug);
         vaccine.setVaccineCreator(currentAuthUser);
@@ -73,14 +77,13 @@ public class VaccineServiceImpl implements VaccineService {
         return vaccineDtoMapper.toDto(vaccineRepository.save(vaccine));
     }
 
-    @EnableSoftDeleteFilter
-    private String ensureUniqueVaccineSlug(String baseSlug) {
-        String slug = baseSlug;
-        int counter = 1;
-        while (vaccineRepository.existsBySlug(slug)) {
-            slug = baseSlug + "-" + counter;
-            counter++;
-        }
-        return slug;
-    }
+//    private String ensureUniqueVaccineSlug(String baseSlug) {
+//        String slug = baseSlug;
+//        int counter = 1;
+//        while (vaccineRepository.existsBySlug(slug)) {
+//            slug = baseSlug + "-" + counter;
+//            counter++;
+//        }
+//        return slug;
+//    }
 }

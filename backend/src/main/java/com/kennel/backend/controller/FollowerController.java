@@ -3,6 +3,7 @@ package com.kennel.backend.controller;
 import com.kennel.backend.dto.follow.request.FollowRequestDto;
 import com.kennel.backend.dto.follow.response.FollowResponseDto;
 import com.kennel.backend.service.FollowerService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +20,7 @@ public class FollowerController {
     private final FollowerService followerService;
 
     @PostMapping
-    public ResponseEntity<FollowResponseDto> follow(@RequestBody FollowRequestDto followRequestDto){
+    public ResponseEntity<FollowResponseDto> follow(@RequestBody @Valid FollowRequestDto followRequestDto){
         return ResponseEntity.ok(followerService.follow(followRequestDto));
     }
 

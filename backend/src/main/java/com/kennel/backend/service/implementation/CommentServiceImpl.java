@@ -33,6 +33,7 @@ public class CommentServiceImpl implements CommentService {
     private final PostRepository postRepository;
     private final AuthUtility authUtility;
     private final FriendRepository friendRepository;
+    private final SlugGenerator slugGenerator;
     
     @Override
     public Page<CommentResponseDto> findCommentByPost(String postSlug, Pageable pageable) {
@@ -63,8 +64,11 @@ public class CommentServiceImpl implements CommentService {
         comment.setPost(post);
         post.getComments().add(comment);
 
-        String initialSlug = SlugGenerator.toSlug( comment.getContent().substring(0,10));
-        String finalSlug = ensureUniqueCommentSlug(initialSlug);
+//        String initialSlug = SlugGenerator.toSlug( comment.getContent().substring(0,10));
+//        String finalSlug = ensureUniqueCommentSlug(initialSlug);
+
+        String base= comment.getContent().substring(0,10);
+        String finalSlug= slugGenerator.ensureUniqueSlug(base, commentRepository);
 
         comment.setSlug(finalSlug);
         comment.setCreatedBy(currentAuthUser);
@@ -117,16 +121,16 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
-    @EnableSoftDeleteFilter
-    private String ensureUniqueCommentSlug(String baseSlug) {
-        String slug = baseSlug;
-        int counter = 1;
-        while (commentRepository.existsBySlug(slug)) {
-            slug = baseSlug + "-" + counter;
-            counter++;
-        }
-        return slug;
-    }
+
+//    private String ensureUniqueCommentSlug(String baseSlug) {
+//        String slug = baseSlug;
+//        int counter = 1;
+//        while (commentRepository.existsBySlug(slug)) {
+//            slug = baseSlug + "-" + counter;
+//            counter++;
+//        }
+//        return slug;
+//    }
 
     private Boolean isAFriend(UserEntity currentAuthUser, UserEntity userEntity){
         return friendRepository.existsBySenderAndReceiverAndStatus(currentAuthUser, userEntity, FriendStatus.ACCEPTED)

@@ -33,6 +33,7 @@ public class KennelServiceImpl implements KennelService {
     private final UserEntityRepository userEntityRepository;
     private final KennelDtoMapper kennelDtoMapper;
     private final AuthUtility authUtility;
+    private final SlugGenerator slugGenerator;
 
     @Override
     public KennelResponseDto createKennel(KennelCreateRequestDto kennelCreateRequestDto) {
@@ -42,8 +43,11 @@ public class KennelServiceImpl implements KennelService {
 
         validateKennelNameUnique(kennel.getName(), kennel.getLocation());
 
-        String initialSlug = SlugGenerator.toSlug(kennel.getName() + "-" + kennel.getLocation());
-        String finalSlug = ensureUniqueKennelSlug(initialSlug);
+//        String initialSlug = SlugGenerator.toSlug(kennel.getName() + "-" + kennel.getLocation());
+//        String finalSlug = ensureUniqueKennelSlug(initialSlug);
+
+        String base= kennel.getName() + "-" + kennel.getLocation();
+        String finalSlug = slugGenerator.ensureUniqueSlug(base, kennelRepository);
 
         kennel.setOwner(currentAuthUser);
         kennel.setSlug(finalSlug);
@@ -131,7 +135,6 @@ public class KennelServiceImpl implements KennelService {
         }
     }
 
-    @EnableSoftDeleteFilter
     private void validateKennelNameUnique(String name, String location){
         boolean exists = kennelRepository.existsByNameAndLocation(name, location);
         if (exists) {
@@ -139,14 +142,13 @@ public class KennelServiceImpl implements KennelService {
         }
     }
 
-    @EnableSoftDeleteFilter
-    private String ensureUniqueKennelSlug(String baseSlug) {
-        String slug = baseSlug;
-        int counter = 1;
-        while (kennelRepository.existsBySlug(slug)) {
-            slug = baseSlug + "-" + counter;
-            counter++;
-        }
-        return slug;
-    }
+//    private String ensureUniqueKennelSlug(String baseSlug) {
+//        String slug = baseSlug;
+//        int counter = 1;
+//        while (kennelRepository.existsBySlug(slug)) {
+//            slug = baseSlug + "-" + counter;
+//            counter++;
+//        }
+//        return slug;
+//    }
 }

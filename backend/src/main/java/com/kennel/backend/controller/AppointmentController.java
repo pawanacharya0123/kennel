@@ -4,6 +4,7 @@ import com.kennel.backend.dto.appointments.request.AppointmentRequestDto;
 import com.kennel.backend.dto.appointments.response.AppointmentResponseDto;
 import com.kennel.backend.entity.enums.AppointmentStatus;
 import com.kennel.backend.service.AppointmentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
@@ -37,7 +38,7 @@ public class AppointmentController {
     }
 
     @PostMapping
-    public ResponseEntity<AppointmentResponseDto> makeAppointment(@RequestBody AppointmentRequestDto appointmentRequestDto){
+    public ResponseEntity<AppointmentResponseDto> makeAppointment(@RequestBody @Valid AppointmentRequestDto appointmentRequestDto){
         return ResponseEntity.ok(appointmentService.makeAppointment(appointmentRequestDto));
     }
 

@@ -8,6 +8,7 @@ import com.kennel.backend.entity.Reaction;
 import com.kennel.backend.entity.enums.ReactionType;
 import com.kennel.backend.exception.ForbiddenActionException;
 import com.kennel.backend.service.ReactionService;
+import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -45,12 +46,12 @@ public class ReactionController {
 
 
     @PostMapping("/post/{postSlug}")
-    public ResponseEntity<ReactionResponseDto> reactToPost(@PathVariable String postSlug, @RequestBody ReactionRequestDto reactionRequestDto){
+    public ResponseEntity<ReactionResponseDto> reactToPost(@PathVariable String postSlug, @RequestBody @Valid ReactionRequestDto reactionRequestDto){
         return ResponseEntity.ok(reactionService.reactToPost(postSlug, reactionRequestDto));
     }
 
     @PostMapping("/comment/{commentSlug}")
-    public ResponseEntity<ReactionResponseDto> reactToComment(@PathVariable String commentSlug, @RequestBody ReactionRequestDto reactionRequestDto){
+    public ResponseEntity<ReactionResponseDto> reactToComment(@PathVariable String commentSlug, @RequestBody @Valid ReactionRequestDto reactionRequestDto){
         return ResponseEntity.ok(reactionService.reactToComment(commentSlug, reactionRequestDto));
     }
 

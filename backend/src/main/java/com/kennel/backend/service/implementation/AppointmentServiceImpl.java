@@ -30,6 +30,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final AppointmentDtoMapper appointmentDtoMapper;
     private final DogRepository dogRepository;
+    private final SlugGenerator slugGenerator;
 
     @Override
     public Page<AppointmentResponseDto> getAll(Pageable pageable) {
@@ -55,8 +56,11 @@ public class AppointmentServiceImpl implements AppointmentService {
     public AppointmentResponseDto makeAppointment(AppointmentRequestDto appointmentRequestDto) {
         Appointment appointment = appointmentDtoMapper.toEntity(appointmentRequestDto);
 
-        String initialSlug = SlugGenerator.toSlug(appointment.getDog().getName() + "-" + appointment.getAppointmentTime().toString());
-        String finalSlug = ensureUniqueAppointmentSlug(initialSlug);
+//        String initialSlug = SlugGenerator.toSlug(appointment.getDog().getName() + "-" + appointment.getAppointmentTime().toString());
+//        String finalSlug = ensureUniqueAppointmentSlug(initialSlug);
+
+        String base= appointment.getDog().getName() + "-" + appointment.getAppointmentTime().toString();
+        String finalSlug= slugGenerator.ensureUniqueSlug(base, appointmentRepository);
 
         appointment.setSlug(finalSlug);
 
@@ -101,15 +105,15 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
 
-    private String ensureUniqueAppointmentSlug(String baseSlug) {
-        String slug = baseSlug;
-        int counter = 1;
-        while (appointmentRepository.existsBySlug(slug)) {
-            slug = baseSlug + "-" + counter;
-            counter++;
-        }
-        return slug;
-    }
+//    private String ensureUniqueAppointmentSlug(String baseSlug) {
+//        String slug = baseSlug;
+//        int counter = 1;
+//        while (appointmentRepository.existsBySlug(slug)) {
+//            slug = baseSlug + "-" + counter;
+//            counter++;
+//        }
+//        return slug;
+//    }
 
 
 }

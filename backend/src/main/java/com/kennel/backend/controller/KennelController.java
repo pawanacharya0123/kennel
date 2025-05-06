@@ -5,6 +5,7 @@ import com.kennel.backend.dto.kennel.request.KennelRequestDto;
 import com.kennel.backend.dto.kennel.request.KennelUpdateRequestDto;
 import com.kennel.backend.dto.kennel.response.KennelResponseDto;
 import com.kennel.backend.service.KennelService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
@@ -55,13 +56,13 @@ public class KennelController {
     }
 
     @PostMapping
-    public ResponseEntity<KennelResponseDto> createKennel(@RequestBody KennelCreateRequestDto kennelCreateRequestDto){
+    public ResponseEntity<KennelResponseDto> createKennel(@RequestBody @Valid KennelCreateRequestDto kennelCreateRequestDto){
         return ResponseEntity.ok(kennelService.createKennel(kennelCreateRequestDto));
     }
 
     @PreAuthorize("@kennelSecurity.isOwner(#slug, authentication.name)")
     @PutMapping("/{slug}")
-    public ResponseEntity<KennelResponseDto> updateKennel(@RequestBody KennelUpdateRequestDto kennelUpdateRequestDto, @PathVariable String slug){
+    public ResponseEntity<KennelResponseDto> updateKennel(@RequestBody @Valid KennelUpdateRequestDto kennelUpdateRequestDto, @PathVariable String slug){
         return ResponseEntity.ok(kennelService.updateKennel(slug, kennelUpdateRequestDto));
     }
 

@@ -4,6 +4,7 @@ import com.kennel.backend.dto.friend.request.FriendRequestDto;
 import com.kennel.backend.dto.friend.response.FriendResponseDto;
 import com.kennel.backend.entity.enums.FriendStatus;
 import com.kennel.backend.service.FriendService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +20,7 @@ public class FriendController {
     private final FriendService friendService;
 
     @PostMapping
-    public ResponseEntity<FriendResponseDto> sendFriendRequest(@RequestBody FriendRequestDto friendRequestDto){
+    public ResponseEntity<FriendResponseDto> sendFriendRequest(@RequestBody @Valid FriendRequestDto friendRequestDto){
         return ResponseEntity.ok(friendService.sendFriendRequest(friendRequestDto));
     }
 

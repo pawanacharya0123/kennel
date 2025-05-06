@@ -30,6 +30,7 @@ public class DogServiceImpl implements DogService {
     private final DogRepository dogRepository;
     private final UserEntityRepository userEntityRepository;
     private final DogDtoMapper dogDtoMapper;
+    private final SlugGenerator slugGenerator;
 
     @Override
     public DogResponseDTO createDog(DogCreateRequestDTO dogCreateRequestDTO) {
@@ -42,8 +43,11 @@ public class DogServiceImpl implements DogService {
 
         validateDogNameUnique(dog.getName(), user.getId());
 
-        String initialSlug = SlugGenerator.toSlug(dog.getName() + "-" + dog.getBreed());
-        String finalSlug = ensureUniqueDogSlug(initialSlug);
+//        String initialSlug = SlugGenerator.toSlug(dog.getName() + "-" + dog.getBreed());
+//        String finalSlug = ensureUniqueDogSlug(initialSlug);
+
+        String base= dog.getName() + "-" + dog.getBreed();
+        String finalSlug = slugGenerator.ensureUniqueSlug(base, dogRepository);
 
         dog.setSlug(finalSlug);
         dog.setOwner(user);
@@ -135,7 +139,6 @@ public class DogServiceImpl implements DogService {
         }
     }
 
-    @EnableSoftDeleteFilter
     private void validateDogNameUnique(String name, Long ownerId){
         boolean exists = dogRepository.existsByNameAndOwnerId(name, ownerId);
         if (exists) {
@@ -143,14 +146,13 @@ public class DogServiceImpl implements DogService {
         }
     }
 
-    @EnableSoftDeleteFilter
-    private String ensureUniqueDogSlug(String baseSlug) {
-        String slug = baseSlug;
-        int counter = 1;
-        while (dogRepository.existsBySlug(slug)) {
-            slug = baseSlug + "-" + counter;
-            counter++;
-        }
-        return slug;
-    }
+//    private String ensureUniqueDogSlug(String baseSlug) {
+//        String slug = baseSlug;
+//        int counter = 1;
+//        while (dogRepository.existsBySlug(slug)) {
+//            slug = baseSlug + "-" + counter;
+//            counter++;
+//        }
+//        return slug;
+//    }
 }

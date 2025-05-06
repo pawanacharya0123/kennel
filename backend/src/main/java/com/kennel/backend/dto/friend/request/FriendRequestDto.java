@@ -8,7 +8,6 @@ import lombok.Getter;
 @Getter
 public class FriendRequestDto {
     @NotNull
-    @NotBlank
     private FriendStatus status;
     @NotNull
     private Long receiver;
